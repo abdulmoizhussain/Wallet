@@ -1,0 +1,8 @@
+<resources>
+	<string name="app_name">Wallet</string>
+	
+	<string name="total">Total: </string>
+	
+	<string name="add_or_subtract">Add / Subtract</string>
+
+</resources>

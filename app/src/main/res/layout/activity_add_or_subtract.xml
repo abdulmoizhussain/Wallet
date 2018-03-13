@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context="com.example.abdul.bank.AddOrSubtract">
+	
+	<EditText
+		android:id="@+id/editText2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:layout_marginLeft="4dp"
+		android:layout_marginStart="4dp"
+		android:layout_marginTop="4dp"
+		android:inputType="phone"
+		android:digits="1234567890"
+		app:layout_constraintLeft_toRightOf="@+id/textView2"
+		app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+	
+	<EditText
+		android:id="@+id/editText"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:inputType="text"
+		app:layout_constraintLeft_toLeftOf="@+id/editText2"
+		app:layout_constraintTop_toBottomOf="@+id/editText2"/>
+	
+	<TextView
+		android:id="@+id/textView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="8dp"
+		android:layout_marginStart="8dp"
+		android:text="Date: "
+		android:textSize="18sp"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintBaseline_toBaselineOf="@+id/textView3"/>
+	
+	<TextView
+		android:id="@+id/textView2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Amount: "
+		android:textSize="18sp"
+		app:layout_constraintLeft_toLeftOf="@+id/textView"
+		app:layout_constraintBaseline_toBaselineOf="@+id/editText2"/>
+	
+	<TextView
+		android:id="@+id/textView3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:text=""
+		android:textSize="18sp"
+		app:layout_constraintLeft_toLeftOf="@+id/editText2"
+		app:layout_constraintTop_toTopOf="parent"
+		/>
+	
+	<Button
+		android:id="@+id/button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:onClick="add"
+		android:text="Add"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/editText"/>
+	
+	<Button
+		android:id="@+id/button2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:onClick="subtract"
+		android:text="Subtract"
+		app:layout_constraintStart_toEndOf="@+id/button"
+		app:layout_constraintTop_toBottomOf="@+id/editText"/>
+	
+	<TextView
+		android:id="@+id/textView8"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Details: "
+		android:textSize="18sp"
+		app:layout_constraintLeft_toLeftOf="@+id/textView2"
+		app:layout_constraintBaseline_toBaselineOf="@+id/editText"/>
+	
+</android.support.constraint.ConstraintLayout>
