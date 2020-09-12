@@ -14,53 +14,55 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AddOrSubtract extends AppCompatActivity {
-    EditText amount, details;
-    TextView date;
+    EditText editTextAmount, editTextDetails;
+    TextView textViewDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_or_subtract);
 
-        date = (TextView) findViewById(R.id.textView3);
-        date.setText(getDate());
-        date.append("-" + getMonth() + "-" + getYear() + "-" + getTime());
-//		amount.setFocusable(false);
+        textViewDate = (TextView) findViewById(R.id.textView3);
+
+        Date date = new Date();
+        String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
+        textViewDate.setText(timeStamp);
     }
 
     public void add(View v) {
-        amount = (EditText) findViewById(R.id.editText2);
-        if (!amount.getText().toString().isEmpty()) {
-            details = (EditText) findViewById(R.id.editText);
+        editTextAmount = (EditText) findViewById(R.id.editText2);
+        if (!editTextAmount.getText().toString().isEmpty()) {
+            editTextDetails = (EditText) findViewById(R.id.editText);
             DBHelper mDBHelper = new DBHelper(this);
-            if (mDBHelper.onInsert(date.getText().toString(),
-                    amount.getText().toString(), details.getText().toString()))
-                Toast.makeText(this, amount.getText().toString() + " added to Bank", Toast.LENGTH_LONG).show();
+            if (mDBHelper.onInsert(textViewDate.getText().toString(),
+                    editTextAmount.getText().toString(), editTextDetails.getText().toString()))
+                Toast.makeText(this, editTextAmount.getText().toString() + " added to Bank", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(this, "Error! Cannot add", Toast.LENGTH_LONG).show();
             mDBHelper.close();
-            amount.setText(null);
-            details.setText(null);
+            editTextAmount.setText(null);
+            editTextDetails.setText(null);
             goBack();
         }
     }
 
     public void subtract(View v) {
-        amount = (EditText) findViewById(R.id.editText2);
-        if (!amount.getText().toString().isEmpty()) {
-            details = (EditText) findViewById(R.id.editText);
-            DBHelper mDBHelper = new DBHelper(this);
-            if (mDBHelper.onInsert(date.getText().toString(),
-                    "-" + amount.getText().toString(), details.getText().toString()))
-                Toast.makeText(this, amount.getText().toString() + " subtracted from Bank", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(this, "Error! Cannot subtract", Toast.LENGTH_LONG).show();
-
-            mDBHelper.close();
-            amount.setText(null);
-            details.setText(null);
-            goBack();
+        editTextAmount = (EditText) findViewById(R.id.editText2);
+        if (editTextAmount.getText().toString().isEmpty()) {
+            return;
         }
+
+        editTextDetails = (EditText) findViewById(R.id.editText);
+        DBHelper dbHelper = new DBHelper(this);
+        boolean insertionResult = dbHelper.onInsert(textViewDate.getText().toString(), "-" + editTextAmount.getText().toString(), editTextDetails.getText().toString());
+
+        String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Bank" : "Error! Cannot subtract";
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+        dbHelper.close();
+        editTextAmount.setText(null);
+        editTextDetails.setText(null);
+        goBack();
     }
 
     private void goBack() {
@@ -68,20 +70,19 @@ public class AddOrSubtract extends AppCompatActivity {
         startActivity(new Intent(this, MainActivity.class));
     }
 
-    private String getYear() {
-        return new SimpleDateFormat("yyyy", Locale.getDefault()).format(new Date());
+    private String getYear(Date date) {
+        return new SimpleDateFormat("yyyy", Locale.getDefault()).format(date);
     }
 
-    private String getDate() {
-        return new SimpleDateFormat("dd", Locale.getDefault()).format(new Date());
+    private String getDate(Date date) {
+        return new SimpleDateFormat("dd", Locale.getDefault()).format(date);
     }
 
-    private String getMonth() {
-        return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());
+    private String getMonth(Date date) {
+        return new SimpleDateFormat("MMM", Locale.getDefault()).format(date);
     }
 
-    private String getTime() {
-        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+    private String getTime(Date date) {
+        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
     }
-
 }

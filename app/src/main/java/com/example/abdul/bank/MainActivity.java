@@ -15,8 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
 public class MainActivity extends AppCompatActivity {
-    TextView date, total;
-    EditText amount;
+    TextView textViewTotal;
+    EditText editTextAmount;
     Cursor cursor;
 
     @Override
@@ -24,49 +24,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //date = (TextView)findViewById(R.id.textView3);
         populateListViewFromDB();
     }
 
     public void addOrSubtract(View v) {
-        //stopManagingCursor(cursor);
-        //cursor.close();
         startActivity(new Intent(this, AddOrSubtract.class));
     }
 
-    //
-//	public void add (View v) {
-//		amount = (EditText)findViewById(R.id.editText2);
-//		if (!amount.getText().toString().isEmpty()) {
-//			details = (EditText)findViewById(R.id.editText);
-//			DBHelper mDBHelper = new DBHelper(this);
-//			if ( mDBHelper.onInsert (date.getText().toString(),
-//					amount.getText().toString(), details.getText().toString()))
-//				Toast.makeText(this, amount.getText().toString()+" added to Bank", Toast.LENGTH_LONG).show();
-//			else
-//				Toast.makeText(this, "Error! Cannot add", Toast.LENGTH_LONG).show();
-//			mDBHelper.close();
-//			populateListViewFromDB();
-//			amount.setText(null); details.setText(null);
-//		}
-//	}
-//
-//	public void subtract (View v) {
-//		amount = (EditText)findViewById(R.id.editText2);
-//		if (!amount.getText().toString().isEmpty()) {
-//			details = (EditText)findViewById(R.id.editText);
-//			DBHelper mDBHelper = new DBHelper(this);
-//			if ( mDBHelper.onInsert (date.getText().toString(),
-//					"-"+amount.getText().toString(), details.getText().toString()))
-//				Toast.makeText(this, amount.getText().toString()+" subtracted from Bank", Toast.LENGTH_LONG).show();
-//			else
-//				Toast.makeText(this, "Error! Cannot subtract", Toast.LENGTH_LONG).show();
-//
-//			mDBHelper.close();
-//			populateListViewFromDB();
-//			amount.setText(null); details.setText(null);
-//		}
-//	}
 
     public void delete(String ID) {
         DBHelper dbHelper = new DBHelper(this);
@@ -76,15 +40,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void populateListViewFromDB() {
         DBHelper mDBHelper = new DBHelper(this);
-        String[] fromFieldNames = new String[]{DBHelper.KEY_ID, DBHelper.KEY_DATE, DBHelper.KEY_AMOUNT, DBHelper.KEY_DETAILS};
+        String[] fromFieldNames = new String[]{DBHelper.ColumnNames.Id, DBHelper.ColumnNames.Date, DBHelper.ColumnNames.Amount, DBHelper.ColumnNames.Details};
         int[] toViewIDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
 
         cursor = mDBHelper.onSelectAll();
         mDBHelper.close();
-        //startManagingCursor(cursor);
         SimpleCursorAdapter myCursorAdapter =
                 new SimpleCursorAdapter(
-                        this,// Context
+                        this,
                         R.layout.list_view_layout, // Row layout template
                         cursor,                     // cursor (set of DB records to map)
                         fromFieldNames,             // DB Column names
@@ -101,9 +64,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
                                            int pos, long id) {
-                // TODO Auto-generated method stub
-                //Log.v("long clicked","pos: " + pos);
-
                 //to get the textView strings from listView layout.
                 String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
                 String DATE = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
@@ -111,19 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 String DETAILS = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
 
                 deleteEntry(ID, DATE, AMOUNT, DETAILS);
-                ID = AMOUNT = DETAILS = DATE = null;
                 return true;
             }
         });
 
-        total = (TextView) findViewById(R.id.textView16);
-        total.setText(getResources().getString(R.string.total));
-        total.append(" " + mDBHelper.onSelectTotal());
+        textViewTotal = (TextView) findViewById(R.id.textView16);
+        textViewTotal.setText(getResources().getString(R.string.total));
+        textViewTotal.append(" " + mDBHelper.onSelectTotal());
 
-        amount = (EditText) findViewById(R.id.editText2);
-//		amount.clearFocus();
-		/*if ( amount.isFocused() )
-			amount.clearFocus();*/
+        editTextAmount = (EditText) findViewById(R.id.editText2);
     }
 
     private void deleteEntry(final String ID, String DATE, String AMOUNT, String DETAILS) {

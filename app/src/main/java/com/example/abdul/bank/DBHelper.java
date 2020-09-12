@@ -13,93 +13,83 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "Bank";
-    public static final String TABLE_NAME = "table1";
 
-    public static final String KEY_ID = "_id";
-    public static final String KEY_DATE = "date";
-    public static final String KEY_AMOUNT = "amount";
-    public static final String KEY_DETAILS = "details";
+    public static class TableNames {
+        public static final String Wallet = "Wallet";
+    }
 
-    public static final String KEY_TOTAL = "total";
-    public static final String[] ALL_KEYS = new String[]
-            {KEY_ID, KEY_DATE, KEY_AMOUNT, KEY_DETAILS};
+    public static class ColumnNames {
+        public static final String Id = "_id";
+        public static final String Date = "Date";
+        public static final String Amount = "Amount";
+        public static final String Details = "Details";
+        public static final String Total = "Total";
+    }
 
-    /*
-        public static final int COL_ID = 0;
-        public static final int COL_DATE = 1;
-        public static final int COL_AMOUNT = 2;
-    */
-    private static final String DATABASE_CREATE_SQL = "create table "
-            + TABLE_NAME
-            + " (" + KEY_ID + " integer primary key autoincrement, "
-            + KEY_DATE + " text, "
-            + KEY_AMOUNT + " integer, "
-            + KEY_DETAILS + " text"
-            + ");";
-
-    DBHelper(Context context) {
+    public DBHelper(Context context) {
         super(context, DB_NAME, null, 1);
     }
 
-    boolean onInsert(String date, String amount, String details) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues a = new ContentValues();
-        a.put(KEY_DATE, date);
-        a.put(KEY_AMOUNT, amount);
-        a.put(KEY_DETAILS, details);
-
-        long r = db.insert(TABLE_NAME, null, a);
-
-        return r != -1;
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL("CREATE TABLE "
+                + TableNames.Wallet
+                + " ("
+                + ColumnNames.Id + " integer primary key autoincrement, "
+                + ColumnNames.Date + " text, "
+                + ColumnNames.Amount + " integer, "
+                + ColumnNames.Details + " text"
+                + ");"
+        );
     }
 
-    Cursor onSelectAll() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(true,
-                TABLE_NAME,
-                ALL_KEYS,
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        sqLiteDatabase.execSQL("drop table if exists " + TableNames.Wallet);
+        onCreate(sqLiteDatabase);
+    }
+
+    boolean onInsert(String date, String amount, String details) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ColumnNames.Date, date);
+        contentValues.put(ColumnNames.Amount, amount);
+        contentValues.put(ColumnNames.Details, details);
+
+        long result = sqLiteDatabase.insert(TableNames.Wallet, null, contentValues);
+        return result != -1;
+    }
+
+    public Cursor onSelectAll() {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.query(true,
+                TableNames.Wallet,
+                new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details},
                 null, null, null, null,
-                KEY_ID + " DESC", null);
-        //Cursor cursor = db.rawQuery("select "+KEY_DATE+","+KEY_AMOUNT+", sum("+KEY_AMOUNT+") as "+KEY_TOTAL+" from "+TABLE_NAME,null);
+                ColumnNames.Id + " DESC", null);
+        //Cursor cursor = sqLiteDatabase.rawQuery("select "+KEY_DATE+","+KEY_AMOUNT+", sum("+KEY_AMOUNT+") as "+KEY_TOTAL+" from "+TABLE_NAME,null);
         if (cursor != null)
             cursor.moveToFirst();
-        db.close();
+        sqLiteDatabase.close();
         return cursor;
     }
 
-    void onDelete(String ID) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, KEY_ID + " = ?", new String[]{ID});
-        //db.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
-        db.close();
+    public void onDelete(String ID) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        sqLiteDatabase.delete(TableNames.Wallet, ColumnNames.Id + " = ?", new String[]{ID});
+        //sqLiteDatabase.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
+        sqLiteDatabase.close();
     }
 
     int onSelectTotal() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select sum(" + KEY_AMOUNT + ") as " + KEY_TOTAL + " from " + TABLE_NAME, null);
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select sum(" + ColumnNames.Amount + ") as " + ColumnNames.Total + " from " + TableNames.Wallet, null);
         int total = 0;
         if (cursor.moveToFirst()) {
             total = cursor.getInt(0);
         }
-        db.close();
+        sqLiteDatabase.close();
         cursor.close();
         return total;
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DATABASE_CREATE_SQL);
-    }
-
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onDowngrade(db, oldVersion, newVersion);
-        //onUpgrade(db, oldVersion, newVersion);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table if exists " + TABLE_NAME);
-        onCreate(db);
     }
 }
