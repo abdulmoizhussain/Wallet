@@ -14,10 +14,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import java.text.DecimalFormat;
+
 public class MainActivity extends AppCompatActivity {
     TextView textViewTotal;
     EditText editTextAmount;
     Cursor cursor;
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#,##,###.##");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,26 +48,35 @@ public class MainActivity extends AppCompatActivity {
 
         cursor = mDBHelper.onSelectAll();
         mDBHelper.close();
-        SimpleCursorAdapter myCursorAdapter =
-                new SimpleCursorAdapter(
-                        this,
-                        R.layout.list_view_layout, // Row layout template
-                        cursor,                     // cursor (set of DB records to map)
-                        fromFieldNames,             // DB Column names
-                        toViewIDs,                  // View IDs to put information in
-                        0
-                );
+        SimpleCursorAdapter myCursorAdapter = new SimpleCursorAdapter(
+                this,
+                R.layout.list_view_layout,
+                cursor,
+                fromFieldNames,
+                toViewIDs,
+                0
+        );
 
-        // Set the adapter for the list view
         ListView myList = (ListView) findViewById(R.id.listView);
         myList.setAdapter(myCursorAdapter);
+
+        myCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                int columnIndexOfAmountColumn = 2;
+                if (columnIndex == columnIndexOfAmountColumn) {
+                    int amount = cursor.getInt(columnIndexOfAmountColumn);
+                    ((TextView) view).setText(decimalFormat.format(amount));
+                    return true;
+                }
+                return false;
+            }
+        });
 
         myList.setLongClickable(true);
         myList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-                                           int pos, long id) {
-                //to get the textView strings from listView layout.
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
                 String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
                 String DATE = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
                 String AMOUNT = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
@@ -75,11 +87,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        textViewTotal = (TextView) findViewById(R.id.textView16);
-        textViewTotal.setText(getResources().getString(R.string.total));
-        textViewTotal.append(" " + mDBHelper.onSelectTotal());
-
         editTextAmount = (EditText) findViewById(R.id.editText2);
+        textViewTotal = (TextView) findViewById(R.id.textView16);
+        String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(mDBHelper.onSelectTotal()));
+        textViewTotal.setText(total);
     }
 
     private void deleteEntry(final String ID, String DATE, String AMOUNT, String DETAILS) {
@@ -87,20 +98,18 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setTitle("Alert");
         alertDialog.setMessage("Do you want to remove this entry from Wallet?\n\n" +
                 DATE + "\n" + AMOUNT + "\n" + DETAILS);
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        delete(ID);
-                        populateListViewFromDB();
-                        dialog.dismiss();
-                    }
-                });
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                delete(ID);
+                populateListViewFromDB();
+                dialog.dismiss();
+            }
+        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
         alertDialog.show();
     }
 }
