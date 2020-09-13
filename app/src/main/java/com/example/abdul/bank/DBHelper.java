@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final String DB_NAME = "Bank";
+    public static final String DB_NAME = "wallet.db";
 
     public static class TableNames {
         public static final String Wallet = "Wallet";
@@ -81,7 +81,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
     }
 
-    int onSelectTotal() {
+    public int onSelectTotal() {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select sum(" + ColumnNames.Amount + ") as " + ColumnNames.Total + " from " + TableNames.Wallet, null);
         int total = 0;

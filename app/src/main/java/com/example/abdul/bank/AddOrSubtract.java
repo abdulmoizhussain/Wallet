@@ -22,7 +22,7 @@ public class AddOrSubtract extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_or_subtract);
 
-        textViewDate = (TextView) findViewById(R.id.textView3);
+        textViewDate = (TextView) findViewById(R.id.textViewDate);
 
         Date date = new Date();
         String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
@@ -30,31 +30,40 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     public void add(View v) {
-        editTextAmount = (EditText) findViewById(R.id.editText2);
-        if (!editTextAmount.getText().toString().isEmpty()) {
-            editTextDetails = (EditText) findViewById(R.id.editText);
-            DBHelper mDBHelper = new DBHelper(this);
-            if (mDBHelper.onInsert(textViewDate.getText().toString(),
-                    editTextAmount.getText().toString(), editTextDetails.getText().toString()))
-                Toast.makeText(this, editTextAmount.getText().toString() + " added to Bank", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(this, "Error! Cannot add", Toast.LENGTH_LONG).show();
-            mDBHelper.close();
-            editTextAmount.setText(null);
-            editTextDetails.setText(null);
-            goBack();
+        editTextAmount = (EditText) findViewById(R.id.editTextAmount);
+        if (editTextAmount.getText().toString().isEmpty()) {
+            return;
         }
+        editTextDetails = (EditText) findViewById(R.id.editTextDetails);
+        DBHelper dbHelper = new DBHelper(this);
+
+        boolean insertionResult = dbHelper.onInsert(
+                textViewDate.getText().toString(),
+                editTextAmount.getText().toString(),
+                editTextDetails.getText().toString()
+        );
+        String msg = insertionResult ? editTextAmount.getText().toString() + " added to Bank" : "Error! Cannot add";
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+
+        dbHelper.close();
+        editTextAmount.setText(null);
+        editTextDetails.setText(null);
+        goBack();
     }
 
     public void subtract(View v) {
-        editTextAmount = (EditText) findViewById(R.id.editText2);
+        editTextAmount = (EditText) findViewById(R.id.editTextAmount);
         if (editTextAmount.getText().toString().isEmpty()) {
             return;
         }
 
-        editTextDetails = (EditText) findViewById(R.id.editText);
+        editTextDetails = (EditText) findViewById(R.id.editTextDetails);
         DBHelper dbHelper = new DBHelper(this);
-        boolean insertionResult = dbHelper.onInsert(textViewDate.getText().toString(), "-" + editTextAmount.getText().toString(), editTextDetails.getText().toString());
+        boolean insertionResult = dbHelper.onInsert(
+                textViewDate.getText().toString(),
+                "-" + editTextAmount.getText().toString(),
+                editTextDetails.getText().toString()
+        );
 
         String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Bank" : "Error! Cannot subtract";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();

@@ -26,41 +26,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        populateListViewFromDB();
+        populateListViewFromDatabase();
     }
 
     public void addOrSubtract(View v) {
         startActivity(new Intent(this, AddOrSubtract.class));
     }
 
-
-    public void delete(String ID) {
+    public void delete(String id) {
         DBHelper dbHelper = new DBHelper(this);
-        dbHelper.onDelete(ID);
+        dbHelper.onDelete(id);
         dbHelper.close();
     }
 
-    private void populateListViewFromDB() {
-        DBHelper mDBHelper = new DBHelper(this);
+    private void populateListViewFromDatabase() {
+        DBHelper dbHelper = new DBHelper(this);
         String[] fromFieldNames = new String[]{DBHelper.ColumnNames.Id, DBHelper.ColumnNames.Date, DBHelper.ColumnNames.Amount, DBHelper.ColumnNames.Details};
         int[] toViewIDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
 
-        cursor = mDBHelper.onSelectAll();
-        mDBHelper.close();
-        SimpleCursorAdapter myCursorAdapter = new SimpleCursorAdapter(
+        cursor = dbHelper.onSelectAll();
+        dbHelper.close();
+        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(
                 this,
-                R.layout.list_view_layout,
+                R.layout.list_view_single_wallet_entry_layout,
                 cursor,
                 fromFieldNames,
                 toViewIDs,
                 0
         );
 
-        ListView myList = (ListView) findViewById(R.id.listView);
-        myList.setAdapter(myCursorAdapter);
+        ListView listView = (ListView) findViewById(R.id.listViewWalletEntries);
+        listView.setAdapter(simpleCursorAdapter);
 
-        myCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+        simpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
                 int columnIndexOfAmountColumn = 2;
@@ -73,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        myList.setLongClickable(true);
-        myList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        listView.setLongClickable(true);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
                 String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
@@ -87,9 +85,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        editTextAmount = (EditText) findViewById(R.id.editText2);
-        textViewTotal = (TextView) findViewById(R.id.textView16);
-        String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(mDBHelper.onSelectTotal()));
+        editTextAmount = (EditText) findViewById(R.id.editTextAmount);
+        textViewTotal = (TextView) findViewById(R.id.textViewTotalAmount);
+        String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(dbHelper.onSelectTotal()));
         textViewTotal.setText(total);
     }
 
@@ -101,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 delete(ID);
-                populateListViewFromDB();
+                populateListViewFromDatabase();
                 dialog.dismiss();
             }
         });

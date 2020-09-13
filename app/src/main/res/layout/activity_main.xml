@@ -15,7 +15,7 @@
 	    android:weightSum="100">
 		
 		<ListView
-			android:id="@+id/listView"
+			android:id="@+id/listViewWalletEntries"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="100"
@@ -25,7 +25,7 @@
 		</ListView>
 		
 		<TextView
-			android:id="@+id/textView16"
+			android:id="@+id/textViewTotalAmount"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="end"
