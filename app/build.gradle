@@ -1,36 +1,36 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 30
-	buildToolsVersion '29.0.3'
-	defaultConfig {
-		applicationId "com.example.abdul.bank"
-		minSdkVersion 14
-		targetSdkVersion 30
-		versionCode 1
-		versionName "1.0"
-		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-	}
-	buildTypes {
-		release {
-			debuggable false
-			minifyEnabled true
-			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-		}
-	}
-	productFlavors {
-	}
+    compileSdkVersion 30
+    buildToolsVersion '29.0.3'
+    defaultConfig {
+        applicationId "com.example.abdul.bank"
+        minSdkVersion 14
+        targetSdkVersion 30
+        versionCode 3
+        versionName "1.0.2"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+    }
 }
 
 dependencies {
-	implementation fileTree(include: ['*.jar'], dir: 'libs')
-	androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
-		exclude group: 'com.android.support', module: 'support-annotations'
-	})
-	implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 
-	implementation "androidx.appcompat:appcompat:1.2.0"
-	implementation "androidx.appcompat:appcompat-resources:1.2.0"
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.appcompat:appcompat-resources:1.2.0"
     testImplementation 'junit:junit:4.13'
 }

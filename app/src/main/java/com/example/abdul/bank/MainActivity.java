@@ -40,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
         startDate.set(Calendar.MINUTE, 0);
         startDate.set(Calendar.SECOND, 0);
 
-        startDate.set(Calendar.HOUR_OF_DAY, 23);
-        startDate.set(Calendar.MINUTE, 59);
-        startDate.set(Calendar.SECOND, 59);
+        endDate.set(Calendar.HOUR_OF_DAY, 23);
+        endDate.set(Calendar.MINUTE, 59);
+        endDate.set(Calendar.SECOND, 59);
 
         SPManager spManager = new SPManager(this);
 
