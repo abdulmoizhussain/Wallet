@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wallet.iml" filepath="$PROJECT_DIR$/.idea/modules/Wallet.iml" group="Wallet" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="Wallet/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wallet.iml" filepath="$PROJECT_DIR$/.idea/modules/Wallet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Wallet.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Wallet.app.iml" />
     </modules>
   </component>
 </project>

@@ -16,6 +16,7 @@ import java.util.Locale;
 public class AddOrSubtract extends AppCompatActivity {
     EditText editTextAmount, editTextDetails;
     TextView textViewDate;
+    private Date date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class AddOrSubtract extends AppCompatActivity {
 
         textViewDate = (TextView) findViewById(R.id.textViewDate);
 
-        Date date = new Date();
+        date = new Date();
         String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
         textViewDate.setText(timeStamp);
     }
@@ -39,6 +40,7 @@ public class AddOrSubtract extends AppCompatActivity {
 
         boolean insertionResult = dbHelper.onInsert(
                 textViewDate.getText().toString(),
+                date.getTime(),
                 editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
@@ -61,6 +63,7 @@ public class AddOrSubtract extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(this);
         boolean insertionResult = dbHelper.onInsert(
                 textViewDate.getText().toString(),
+                date.getTime(),
                 "-" + editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );

@@ -1,52 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	tools:context="com.example.abdul.bank.MainActivity">
-	
-	
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-	    android:weightSum="100">
-		
-		<ListView
-			android:id="@+id/listViewWalletEntries"
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="100"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
-			app:layout_constraintTop_toTopOf="parent">
-		</ListView>
-		
-		<TextView
-			android:id="@+id/textViewTotalAmount"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="end"
-			android:textAlignment="textEnd"
-			android:text="Total: "
-			android:textSize="25sp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			app:layout_constraintBottom_toTopOf="@+id/button4"
-			app:layout_constraintStart_toStartOf="parent"/>
-		
-		<Button
-			android:id="@+id/button4"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:onClick="addOrSubtract"
-			android:text="@string/add_or_subtract"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"/>
-	
-	</LinearLayout>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.abdul.bank.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
+
+        <ListView
+            android:id="@+id/listViewWalletEntries"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="100"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/buttonStartDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClickStartDate"
+                        android:text="StartDate: " />
+
+                    <Button
+                        android:id="@+id/buttonEndDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClickEndDate"
+                        android:text="EndDate: " />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textViewTotalAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:gravity="end"
+                    android:onClick="onClickTotal"
+                    android:text="Total: "
+                    android:textAlignment="textEnd"
+                    android:textSize="25sp"
+                    app:layout_constraintBottom_toTopOf="@+id/button4"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="addOrSubtract"
+                android:text="@string/add_or_subtract"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

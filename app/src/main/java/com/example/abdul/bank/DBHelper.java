@@ -21,13 +21,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public static class ColumnNames {
         public static final String Id = "_id";
         public static final String Date = "Date";
+        public static final String DateLong = "DateLong";
         public static final String Amount = "Amount";
         public static final String Details = "Details";
         public static final String Total = "Total";
     }
 
     public DBHelper(Context context) {
-        super(context, DB_NAME, null, 1);
+        super(context, DB_NAME, null, 2);
     }
 
     @Override
@@ -37,6 +38,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + " ("
                 + ColumnNames.Id + " integer primary key autoincrement, "
                 + ColumnNames.Date + " text, "
+                + ColumnNames.DateLong + " integer, "
                 + ColumnNames.Amount + " integer, "
                 + ColumnNames.Details + " text"
                 + ");"
@@ -49,10 +51,11 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    boolean onInsert(String date, String amount, String details) {
+    boolean onInsert(String date, long dateLong, String amount, String details) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(ColumnNames.Date, date);
+        contentValues.put(ColumnNames.DateLong, dateLong);
         contentValues.put(ColumnNames.Amount, amount);
         contentValues.put(ColumnNames.Details, details);
 
@@ -61,7 +64,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Cursor onSelectAll() {
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.query(true,
                 TableNames.Wallet,
                 new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details},
@@ -81,12 +84,15 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
     }
 
-    public int onSelectTotal() {
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("select sum(" + ColumnNames.Amount + ") as " + ColumnNames.Total + " from " + TableNames.Wallet, null);
-        int total = 0;
+    public long getTotalAmount(long startDateMillis, long endDateMillis) {
+        String dateFilter = " WHERE DateLong >= " + startDateMillis + " AND DateLong <= " + endDateMillis;
+        String rawQuery = "SELECT SUM(" + ColumnNames.Amount + ") AS " + ColumnNames.Total + " FROM " + TableNames.Wallet + dateFilter;
+
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);
+        long total = 0;
         if (cursor.moveToFirst()) {
-            total = cursor.getInt(0);
+            total = cursor.getLong(0);
         }
         sqLiteDatabase.close();
         cursor.close();
