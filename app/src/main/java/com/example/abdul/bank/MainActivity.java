@@ -64,6 +64,14 @@ public class MainActivity extends AppCompatActivity {
         populateListViewFromDatabase();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+    }
+
     private void setStartDate() {
         String text = "StartDate: " + dateFormat.format(new Date(startDate.getTimeInMillis()));
         buttonStartDate.setText(text);
@@ -152,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 0
         );
 
-        ListView listView = (ListView) findViewById(R.id.listViewWalletEntries);
+        ListView listView = findViewById(R.id.listViewWalletEntries);
         listView.setAdapter(simpleCursorAdapter);
 
         simpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
@@ -189,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         long totalAmount = dbHelper.getTotalAmount(startDate.getTimeInMillis(), endDate.getTimeInMillis());
         dbHelper.close();
 
-        TextView textViewTotal = (TextView) findViewById(R.id.textViewTotalAmount);
+        TextView textViewTotal = findViewById(R.id.textViewTotalAmount);
         String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(totalAmount));
         textViewTotal.setText(total);
     }

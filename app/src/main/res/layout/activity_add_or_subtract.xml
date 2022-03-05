@@ -17,6 +17,7 @@
 		android:layout_marginTop="4dp"
 		android:inputType="phone"
 		android:digits="1234567890"
+		android:imeOptions="actionNext"
 		app:layout_constraintLeft_toRightOf="@+id/textView2"
 		app:layout_constraintTop_toBottomOf="@+id/textViewDate"/>
 	
