@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AddOrSubtract extends AppCompatActivity {
-    EditText editTextAmount, editTextDetails;
-    TextView textViewDate;
+    private EditText editTextAmount, editTextDetails;
+    private TextView textViewDate;
     private Date date;
 
     @Override
@@ -23,7 +23,7 @@ public class AddOrSubtract extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_or_subtract);
 
-        textViewDate = (TextView) findViewById(R.id.textViewDate);
+        textViewDate = findViewById(R.id.textViewDate);
 
         date = new Date();
         String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
@@ -31,11 +31,11 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     public void add(View v) {
-        editTextAmount = (EditText) findViewById(R.id.editTextAmount);
+        editTextAmount = findViewById(R.id.editTextAmount);
         if (editTextAmount.getText().toString().isEmpty()) {
             return;
         }
-        editTextDetails = (EditText) findViewById(R.id.editTextDetails);
+        editTextDetails = findViewById(R.id.editTextDetails);
         DBHelper dbHelper = new DBHelper(this);
 
         boolean insertionResult = dbHelper.onInsert(
@@ -54,12 +54,12 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     public void subtract(View v) {
-        editTextAmount = (EditText) findViewById(R.id.editTextAmount);
+        editTextAmount = findViewById(R.id.editTextAmount);
         if (editTextAmount.getText().toString().isEmpty()) {
             return;
         }
 
-        editTextDetails = (EditText) findViewById(R.id.editTextDetails);
+        editTextDetails = findViewById(R.id.editTextDetails);
         DBHelper dbHelper = new DBHelper(this);
         boolean insertionResult = dbHelper.onInsert(
                 textViewDate.getText().toString(),
