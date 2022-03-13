@@ -22,9 +22,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -72,29 +76,6 @@ public class MainActivity extends AppCompatActivity {
         setEndDate();
 
         populateListViewFromDatabase();
-
-//        String timeStamp = Utils.getTimeStamp(new Date());
-//        String fileName = "wallet-backup-" + timeStamp + ".json";
-//        AlertMessage.show(null, fileName, this);
-//        exportToDownloadsFolder();
-    }
-
-    private void exportToDownloadsFolder(String serializedData, String fileNameWithExtension) {
-        try {
-            String backupFilePath = Environment
-                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    .getAbsolutePath() + "/" + fileNameWithExtension;
-
-            File file = new File(backupFilePath);
-
-            Writer output = new BufferedWriter(new FileWriter(file));
-            output.write(serializedData);
-            output.close();
-
-            AlertMessage.show(null, "Backup has been saved to: " + backupFilePath, this);
-        } catch (Exception e) {
-            AlertMessage.show("Failed to Backup!", e.getMessage(), this);
-        }
     }
 
     @Override
@@ -108,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.option_export_data:
-                Toast.makeText(this, "export", Toast.LENGTH_SHORT).show();
-                break;
+                exportData();
+                return true;
             case R.id.option_import_data:
                 Toast.makeText(this, "import", Toast.LENGTH_SHORT).show();
-                break;
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -273,5 +254,38 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         alertDialog.show();
+    }
+
+    private void exportData() {
+        try {
+            JSONArray dbRecords = new DBHelper(this).getAll();
+
+            String fileName = "wallet-backup-" + Utils.getTimeStamp(new Date()) + ".json";
+
+            String backupFilePath = exportToDownloadsFolder(dbRecords.toString(), fileName);
+
+            AlertMessage.show("Backup has been saved to: ", backupFilePath, this);
+
+        } catch (JSONException | IOException ex) {
+            AlertMessage.show(
+                    "Failed to Backup !",
+                    ex.getMessage(),
+                    this
+            );
+        }
+    }
+
+    private String exportToDownloadsFolder(String serializedData, String fileNameWithExtension) throws IOException {
+        String backupFileAbsolutePath = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .getAbsolutePath() + "/" + fileNameWithExtension;
+
+        File file = new File(backupFileAbsolutePath);
+
+        Writer output = new BufferedWriter(new FileWriter(file));
+        output.write(serializedData);
+        output.close();
+
+        return backupFileAbsolutePath;
     }
 }

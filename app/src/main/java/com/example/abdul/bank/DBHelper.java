@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by Abdul on 10/20/2017.
  * ...
@@ -75,6 +79,43 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
         sqLiteDatabase.close();
         return cursor;
+    }
+
+    public JSONArray getAll() throws JSONException {
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+
+        Cursor cursor = sqLiteDatabase.query(false, TableNames.Wallet,
+                new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.DateLong, ColumnNames.Amount, ColumnNames.Details},
+                null, null, null, null, null, null);
+
+        JSONArray jsonArray = new JSONArray();
+
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ColumnNames.Id);
+            int dateStringIndex = cursor.getColumnIndex(ColumnNames.Date);
+            int dateLongIndex = cursor.getColumnIndex(ColumnNames.DateLong);
+            int amountIndex = cursor.getColumnIndex(ColumnNames.Amount);
+            int detailsIndex = cursor.getColumnIndex(ColumnNames.Details);
+
+            do {
+                JSONObject jsonObject = new JSONObject();
+
+                jsonObject.put("id", cursor.getLong(idIndex));
+                jsonObject.put("date_string", cursor.getString(dateStringIndex));
+                jsonObject.put("date_long", cursor.getLong(dateLongIndex));
+                jsonObject.put("amount", cursor.getLong(amountIndex));
+                jsonObject.put("details", cursor.getString(detailsIndex));
+
+                jsonArray.put(jsonObject);
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        sqLiteDatabase.close();
+        this.close();
+
+        return jsonArray;
     }
 
     public void onDelete(String ID) {
