@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -16,6 +17,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -62,6 +67,29 @@ public class MainActivity extends AppCompatActivity {
         setEndDate();
 
         populateListViewFromDatabase();
+
+//        String timeStamp = Utils.getTimeStamp(new Date());
+//        String fileName = "wallet-backup-" + timeStamp + ".json";
+//        AlertMessage.show(null, fileName, this);
+//        exportToDownloadsFolder();
+    }
+
+    private void exportToDownloadsFolder(String serializedData, String fileNameWithExtension) {
+        try {
+            String backupFilePath = Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    .getAbsolutePath() + "/" + fileNameWithExtension;
+
+            File file = new File(backupFilePath);
+
+            Writer output = new BufferedWriter(new FileWriter(file));
+            output.write(serializedData);
+            output.close();
+
+            AlertMessage.show(null, "Backup has been saved to: " + backupFilePath, this);
+        } catch (Exception e) {
+            AlertMessage.show("Failed to Backup!", e.getMessage(), this);
+        }
     }
 
     @Override
