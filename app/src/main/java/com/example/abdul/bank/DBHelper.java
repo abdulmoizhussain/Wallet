@@ -55,7 +55,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    boolean onInsert(String date, long dateLong, String amount, String details) {
+    boolean insertOne(String date, long dateLong, String amount, String details) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(ColumnNames.Date, date);
@@ -67,24 +67,22 @@ public class DBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    public Cursor onSelectAll() {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.query(true,
+    public Cursor getAllInDescOrder() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(true,
                 TableNames.Wallet,
                 new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details},
-                null, null, null, null,
-                ColumnNames.Id + " DESC", null);
-        //Cursor cursor = sqLiteDatabase.rawQuery("select "+KEY_DATE+","+KEY_AMOUNT+", sum("+KEY_AMOUNT+") as "+KEY_TOTAL+" from "+TABLE_NAME,null);
-        if (cursor != null)
-            cursor.moveToFirst();
-        sqLiteDatabase.close();
+                null, null, null, null, ColumnNames.Id + " DESC", null);
+        // Cursor cursor = db.rawQuery("select "+KEY_DATE+","+KEY_AMOUNT+", sum("+KEY_AMOUNT+") as "+KEY_TOTAL+" from "+TABLE_NAME,null);
+        cursor.moveToFirst();
+        db.close();
         return cursor;
     }
 
     public JSONArray getAll() throws JSONException {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = sqLiteDatabase.query(false, TableNames.Wallet,
+        Cursor cursor = db.query(false, TableNames.Wallet,
                 new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.DateLong, ColumnNames.Amount, ColumnNames.Details},
                 null, null, null, null, null, null);
 
@@ -112,30 +110,30 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        sqLiteDatabase.close();
+        db.close();
         this.close();
 
         return jsonArray;
     }
 
-    public void onDelete(String ID) {
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        sqLiteDatabase.delete(TableNames.Wallet, ColumnNames.Id + " = ?", new String[]{ID});
-        //sqLiteDatabase.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
-        sqLiteDatabase.close();
+    public void deleteOneById(String ID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TableNames.Wallet, ColumnNames.Id + " = ?", new String[]{ID});
+        //db.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
+        db.close();
     }
 
     public long getTotalAmount(long startDateMillis, long endDateMillis) {
         String dateFilter = " WHERE DateLong >= " + startDateMillis + " AND DateLong <= " + endDateMillis;
         String rawQuery = "SELECT SUM(" + ColumnNames.Amount + ") AS " + ColumnNames.Total + " FROM " + TableNames.Wallet + dateFilter;
 
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(rawQuery, null);
         long total = 0;
         if (cursor.moveToFirst()) {
             total = cursor.getLong(0);
         }
-        sqLiteDatabase.close();
+        db.close();
         cursor.close();
         return total;
     }

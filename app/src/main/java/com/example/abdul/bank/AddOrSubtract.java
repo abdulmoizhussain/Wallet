@@ -38,7 +38,7 @@ public class AddOrSubtract extends AppCompatActivity {
         editTextDetails = findViewById(R.id.editTextDetails);
         DBHelper dbHelper = new DBHelper(this);
 
-        boolean insertionResult = dbHelper.onInsert(
+        boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
                 date.getTime(),
                 editTextAmount.getText().toString(),
@@ -61,7 +61,7 @@ public class AddOrSubtract extends AppCompatActivity {
 
         editTextDetails = findViewById(R.id.editTextDetails);
         DBHelper dbHelper = new DBHelper(this);
-        boolean insertionResult = dbHelper.onInsert(
+        boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
                 date.getTime(),
                 "-" + editTextAmount.getText().toString(),
