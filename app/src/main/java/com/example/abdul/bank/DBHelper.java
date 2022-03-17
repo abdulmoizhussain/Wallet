@@ -79,7 +79,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public JSONArray getAll() throws JSONException {
+    public String getAllSerialized() throws JSONException {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(false, TableNames.Wallet,
@@ -113,7 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         this.close();
 
-        return jsonArray;
+        return jsonArray.toString();
     }
 
     public void deleteOneById(String ID) {

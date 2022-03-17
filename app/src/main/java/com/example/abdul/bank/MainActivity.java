@@ -256,11 +256,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void exportData() {
         try {
-            JSONArray dbRecords = new DBHelper(this).getAll();
+            String dbRecordsSerialized = new DBHelper(this).getAllSerialized();
 
             String fileName = "wallet-backup-" + Utils.getTimeStamp(new Date()) + ".json";
 
-            String backupFilePath = exportToDownloadsFolder(dbRecords.toString(), fileName);
+            String backupFilePath = exportToDownloadsFolder(dbRecordsSerialized, fileName);
 
             AlertMessage.show("Backup has been saved to: ", backupFilePath, this);
 
