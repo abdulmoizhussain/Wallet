@@ -56,19 +56,21 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     boolean insertOne(String date, long dateLong, String amount, String details) {
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(ColumnNames.Date, date);
         contentValues.put(ColumnNames.DateLong, dateLong);
         contentValues.put(ColumnNames.Amount, amount);
         contentValues.put(ColumnNames.Details, details);
 
-        long result = sqLiteDatabase.insert(TableNames.Wallet, null, contentValues);
+        long result = db.insert(TableNames.Wallet, null, contentValues);
         return result != -1;
     }
 
     public Cursor getAllInDescOrder() {
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.query(true,
                 TableNames.Wallet,
                 new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details},
@@ -77,6 +79,21 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
         db.close();
         return cursor;
+    }
+
+    public long getTotalAmount(long startDateMillis, long endDateMillis) {
+        String dateFilter = " WHERE DateLong >= " + startDateMillis + " AND DateLong <= " + endDateMillis;
+        String rawQuery = "SELECT SUM(" + ColumnNames.Amount + ") AS " + ColumnNames.Total + " FROM " + TableNames.Wallet + dateFilter;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(rawQuery, null);
+        long total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getLong(0);
+        }
+        db.close();
+        cursor.close();
+        return total;
     }
 
     public String getAllSerialized() throws JSONException {
@@ -121,20 +138,5 @@ public class DBHelper extends SQLiteOpenHelper {
         db.delete(TableNames.Wallet, ColumnNames.Id + " = ?", new String[]{ID});
         //db.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
         db.close();
-    }
-
-    public long getTotalAmount(long startDateMillis, long endDateMillis) {
-        String dateFilter = " WHERE DateLong >= " + startDateMillis + " AND DateLong <= " + endDateMillis;
-        String rawQuery = "SELECT SUM(" + ColumnNames.Amount + ") AS " + ColumnNames.Total + " FROM " + TableNames.Wallet + dateFilter;
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(rawQuery, null);
-        long total = 0;
-        if (cursor.moveToFirst()) {
-            total = cursor.getLong(0);
-        }
-        db.close();
-        cursor.close();
-        return total;
     }
 }

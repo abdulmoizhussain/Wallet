@@ -22,7 +22,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.BufferedWriter;
