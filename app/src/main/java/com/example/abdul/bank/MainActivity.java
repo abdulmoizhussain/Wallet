@@ -1,5 +1,6 @@
 package com.example.abdul.bank;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,11 +32,14 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_CODE_WRITE_STORAGE = 200;
+    private static final int REQUEST_CODE_READ_STORAGE = 201;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private Button buttonStartDate, buttonEndDate;
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
@@ -86,13 +90,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.option_export_data:
-                exportData();
-                return true;
-            case R.id.option_import_data:
-                Toast.makeText(this, "import", Toast.LENGTH_SHORT).show();
-                return true;
+        int item_id = item.getItemId();
+
+        if (R.id.option_export_data == item_id && PermissionManager.checkWriteStoragePermission(this, REQUEST_CODE_WRITE_STORAGE)) {
+            exportData();
+            return true;
+        } else if (R.id.option_import_data == item_id && PermissionManager.checkReadStoragePermission(this, REQUEST_CODE_READ_STORAGE)) {
+            importData();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -103,6 +108,20 @@ public class MainActivity extends AppCompatActivity {
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startMain);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_WRITE_STORAGE) {
+            exportData();
+        } else if (requestCode == REQUEST_CODE_READ_STORAGE) {
+            importData();
+        } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            AlertMessage.show("Permission Denied!", "Please provide WRITE-storage permission to export data.", this);
+        } else if (Arrays.asList(permissions).contains(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            AlertMessage.show("Permission Denied!", "Please provide READ-storage permission to import data from backup file.", this);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void setStartDate() {
@@ -270,6 +289,10 @@ public class MainActivity extends AppCompatActivity {
                     this
             );
         }
+    }
+
+    private void importData() {
+        Toast.makeText(this, "Not implemented yet.", Toast.LENGTH_SHORT).show();
     }
 
     private String exportToDownloadsFolder(String serializedData, String fileNameWithExtension) throws IOException {
