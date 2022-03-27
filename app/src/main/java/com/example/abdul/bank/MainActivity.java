@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonStartDate, buttonEndDate;
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,8 +222,6 @@ public class MainActivity extends AppCompatActivity {
     private void populateListViewFromDatabase() {
         DBHelper dbHelper = new DBHelper(this);
 
-        int[] toViewIDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
-
         Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
 
         SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(
@@ -230,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 R.layout.list_view_single_wallet_entry_layout,
                 cursor,
                 DBHelper.SELECTED_COLUMNS,
-                toViewIDs,
+                TO_VIEW_IDs,
                 0
         );
 
