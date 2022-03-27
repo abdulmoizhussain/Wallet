@@ -19,43 +19,20 @@ import java.util.Locale;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
-    private static final String COLUMNS_GET_ALL_DESC = Utils.stringJoin(",", new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details});
-
-    public static final String DB_NAME = "wallet.db";
-
-    public static class TableNames {
-        public static final String Wallet = "Wallet";
-    }
-
-    public static class ColumnNames {
-        public static final String Id = "_id";
-        public static final String Date = "Date";
-        public static final String DateLong = "DateLong";
-        public static final String Amount = "Amount";
-        public static final String Details = "Details";
-    }
+    public static final String[] SELECTED_COLUMNS = new String[]{"_id", "Date", "Amount", "Details"};
 
     public DBHelper(Context context) {
-        super(context, DB_NAME, null, 2);
+        super(context, "wallet.db", null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE "
-                + TableNames.Wallet
-                + " ("
-                + ColumnNames.Id + " integer primary key autoincrement, "
-                + ColumnNames.Date + " text, "
-                + ColumnNames.DateLong + " integer, "
-                + ColumnNames.Amount + " integer, "
-                + ColumnNames.Details + " text"
-                + ");"
-        );
+        sqLiteDatabase.execSQL("CREATE TABLE Wallet (_id integer primary key autoincrement, Date text, DateLong integer, Amount integer, Details text)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("drop table if exists " + TableNames.Wallet);
+        sqLiteDatabase.execSQL("drop table if exists Wallet");
         onCreate(sqLiteDatabase);
     }
 
@@ -64,12 +41,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(ColumnNames.Date, date);
-        contentValues.put(ColumnNames.DateLong, dateLong);
-        contentValues.put(ColumnNames.Amount, amount);
-        contentValues.put(ColumnNames.Details, details);
+        contentValues.put("Date", date);
+        contentValues.put("DateLong", dateLong);
+        contentValues.put("Amount", amount);
+        contentValues.put("Details", details);
 
-        long result = db.insert(TableNames.Wallet, null, contentValues);
+        long result = db.insert("Wallet", null, contentValues);
+
         return result != -1;
     }
 
@@ -77,12 +55,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String raw_query = String.format(Locale.US,
-                "SELECT %s FROM %s WHERE DateLong >= %d AND DateLong <= %d ORDER BY %s DESC;",
-                COLUMNS_GET_ALL_DESC,
-                TableNames.Wallet,
+                "SELECT _id,Date,Amount,Details FROM Wallet WHERE DateLong >= %d AND DateLong <= %d ORDER BY _id DESC",
                 startDateMillis.getTimeInMillis(),
-                endDateMillis.getTimeInMillis(),
-                ColumnNames.Id
+                endDateMillis.getTimeInMillis()
         );
 
         Cursor cursor = db.rawQuery(raw_query, null);
@@ -92,12 +67,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public long getTotalAmount(long startDateMillis, long endDateMillis) {
-        String query_format = "SELECT SUM(Amount) AS Total FROM Wallet WHERE DateLong >= %d AND DateLong <= %d;";
+    public long getTotalAmount(Calendar startDateMillis, Calendar endDateMillis) {
+        String sql_query_format = "SELECT SUM(Amount) AS Total FROM Wallet WHERE DateLong >= %d AND DateLong <= %d";
         String raw_query = String.format(Locale.US,
-                query_format,
-                startDateMillis,
-                endDateMillis
+                sql_query_format,
+                startDateMillis.getTimeInMillis(),
+                endDateMillis.getTimeInMillis()
         );
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -116,27 +91,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getAllSerialized() throws JSONException {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(false, TableNames.Wallet,
-                new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.DateLong, ColumnNames.Amount, ColumnNames.Details},
-                null, null, null, null, null, null);
+        Cursor cursor = db.rawQuery("SELECT _id,Date,DateLong,Amount,Details FROM Wallet", null);
 
         JSONArray jsonArray = new JSONArray();
 
         if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(ColumnNames.Id);
-            int dateStringIndex = cursor.getColumnIndex(ColumnNames.Date);
-            int dateLongIndex = cursor.getColumnIndex(ColumnNames.DateLong);
-            int amountIndex = cursor.getColumnIndex(ColumnNames.Amount);
-            int detailsIndex = cursor.getColumnIndex(ColumnNames.Details);
-
             do {
                 JSONObject jsonObject = new JSONObject();
 
-                jsonObject.put("id", cursor.getLong(idIndex));
-                jsonObject.put("date_string", cursor.getString(dateStringIndex));
-                jsonObject.put("date_long", cursor.getLong(dateLongIndex));
-                jsonObject.put("amount", cursor.getLong(amountIndex));
-                jsonObject.put("details", cursor.getString(detailsIndex));
+                jsonObject.put("_id", cursor.getLong(0));
+                jsonObject.put("date_string", cursor.getString(1));
+                jsonObject.put("date_long", cursor.getLong(2));
+                jsonObject.put("amount", cursor.getLong(3));
+                jsonObject.put("details", cursor.getString(4));
 
                 jsonArray.put(jsonObject);
 
@@ -150,10 +117,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return jsonArray.toString();
     }
 
-    public void deleteOneById(String ID) {
+    public void deleteOneById(String auto_increment_id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TableNames.Wallet, ColumnNames.Id + " = ?", new String[]{ID});
-        //db.execSQL("delete from "+TABLE_NAME+" where "+KEY_ID+" ="+ID+";");
+
+        db.delete("Wallet", "_id = ?", new String[]{auto_increment_id});
+        // equivalent raw query: DELETE FROM Wallet WHERE _id = auto_increment_id
+
         db.close();
     }
 }

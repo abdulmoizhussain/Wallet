@@ -221,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
     private void populateListViewFromDatabase() {
         DBHelper dbHelper = new DBHelper(this);
 
-        String[] fromFieldNames = new String[]{DBHelper.ColumnNames.Id, DBHelper.ColumnNames.Date, DBHelper.ColumnNames.Amount, DBHelper.ColumnNames.Details};
         int[] toViewIDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
 
         Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
@@ -230,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 R.layout.list_view_single_wallet_entry_layout,
                 cursor,
-                fromFieldNames,
+                DBHelper.SELECTED_COLUMNS,
                 toViewIDs,
                 0
         );
@@ -269,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTotalAmount(DBHelper dbHelper) {
-        long totalAmount = dbHelper.getTotalAmount(startDate.getTimeInMillis(), endDate.getTimeInMillis());
+        long totalAmount = dbHelper.getTotalAmount(startDate, endDate);
 
         TextView textViewTotal = findViewById(R.id.textViewTotalAmount);
         String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(totalAmount));
