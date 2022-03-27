@@ -10,12 +10,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 /**
  * Created by Abdul on 10/20/2017.
  * ...
  */
 
 public class DBHelper extends SQLiteOpenHelper {
+    private static final String COLUMNS_GET_ALL_DESC = Utils.stringJoin(",", new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details});
+
     public static final String DB_NAME = "wallet.db";
 
     public static class TableNames {
@@ -28,7 +33,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DateLong = "DateLong";
         public static final String Amount = "Amount";
         public static final String Details = "Details";
-        public static final String Total = "Total";
     }
 
     public DBHelper(Context context) {
@@ -59,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
+
         contentValues.put(ColumnNames.Date, date);
         contentValues.put(ColumnNames.DateLong, dateLong);
         contentValues.put(ColumnNames.Amount, amount);
@@ -68,32 +73,44 @@ public class DBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    public Cursor getAllInDescOrder() {
+    public Cursor getAllInDescOrder(Calendar startDateMillis, Calendar endDateMillis) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(true,
+        String raw_query = String.format(Locale.US,
+                "SELECT %s FROM %s WHERE DateLong >= %d AND DateLong <= %d ORDER BY %s DESC;",
+                COLUMNS_GET_ALL_DESC,
                 TableNames.Wallet,
-                new String[]{ColumnNames.Id, ColumnNames.Date, ColumnNames.Amount, ColumnNames.Details},
-                null, null, null, null, ColumnNames.Id + " DESC", null);
-        // Cursor cursor = db.rawQuery("select "+KEY_DATE+","+KEY_AMOUNT+", sum("+KEY_AMOUNT+") as "+KEY_TOTAL+" from "+TABLE_NAME,null);
+                startDateMillis.getTimeInMillis(),
+                endDateMillis.getTimeInMillis(),
+                ColumnNames.Id
+        );
+
+        Cursor cursor = db.rawQuery(raw_query, null);
         cursor.moveToFirst();
+
         db.close();
         return cursor;
     }
 
     public long getTotalAmount(long startDateMillis, long endDateMillis) {
-        String dateFilter = " WHERE DateLong >= " + startDateMillis + " AND DateLong <= " + endDateMillis;
-        String rawQuery = "SELECT SUM(" + ColumnNames.Amount + ") AS " + ColumnNames.Total + " FROM " + TableNames.Wallet + dateFilter;
+        String query_format = "SELECT SUM(Amount) AS Total FROM Wallet WHERE DateLong >= %d AND DateLong <= %d;";
+        String raw_query = String.format(Locale.US,
+                query_format,
+                startDateMillis,
+                endDateMillis
+        );
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(rawQuery, null);
-        long total = 0;
+        Cursor cursor = db.rawQuery(raw_query, null);
+
+        long totalAmount = 0;
         if (cursor.moveToFirst()) {
-            total = cursor.getLong(0);
+            totalAmount = cursor.getLong(0);
         }
+
         db.close();
         cursor.close();
-        return total;
+        return totalAmount;
     }
 
     public String getAllSerialized() throws JSONException {

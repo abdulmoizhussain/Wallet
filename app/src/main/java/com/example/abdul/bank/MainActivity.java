@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTotal(View v) {
-        setTotalAmount(new DBHelper(this));
+        populateListViewFromDatabase();
     }
 
     public void onClickStartDate(View v) {
@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setStartDate(startDate.getTimeInMillis());
 
                 setStartDate();
+                populateListViewFromDatabase();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -195,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setEndDate(endDate.getTimeInMillis());
 
                 setEndDate();
+                populateListViewFromDatabase();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -222,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         String[] fromFieldNames = new String[]{DBHelper.ColumnNames.Id, DBHelper.ColumnNames.Date, DBHelper.ColumnNames.Amount, DBHelper.ColumnNames.Details};
         int[] toViewIDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
 
-        Cursor cursor = dbHelper.getAllInDescOrder();
+        Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
 
         SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(
                 this,
