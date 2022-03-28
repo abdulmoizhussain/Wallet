@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
                 int columnIndexOfAmountColumn = 2;
                 if (columnIndex == columnIndexOfAmountColumn) {
-                    int amount = cursor.getInt(columnIndexOfAmountColumn);
+                    long amount = cursor.getLong(columnIndexOfAmountColumn);
                     ((TextView) view).setText(decimalFormat.format(amount));
                     return true;
                 }
