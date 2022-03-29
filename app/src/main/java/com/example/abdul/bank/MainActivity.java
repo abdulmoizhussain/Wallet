@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
     private DBHelper dbHelper;
+    private SimpleCursorAdapter cursorAdapterWalletEntries;
     private Button buttonStartDate, buttonEndDate;
     private ListView listViewWalletEntries;
 
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTotal(View v) {
-        populateListViewItems();
+        updateListViewItems();
     }
 
     public void onClickStartDate(View v) {
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setStartDate(startDate.getTimeInMillis());
 
                 setStartDate();
-                populateListViewItems();
+                updateListViewItems();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -202,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setEndDate(endDate.getTimeInMillis());
 
                 setEndDate();
-                populateListViewItems();
+                updateListViewItems();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -224,51 +225,55 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.deleteOneById(id);
     }
 
-    private void populateListViewItems() {
-        Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
+    private final SimpleCursorAdapter.ViewBinder viewBinderWalletEntries = new SimpleCursorAdapter.ViewBinder() {
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            int columnIndexOfAmountColumn = 2;
+            if (columnIndex == columnIndexOfAmountColumn) {
+                long amount = cursor.getLong(columnIndexOfAmountColumn);
+                ((TextView) view).setText(decimalFormat.format(amount));
+                return true;
+            }
+            return false;
+        }
+    };
+    private final AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
+            String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
+            String DATE = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
+            String AMOUNT = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
+            String DETAILS = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
 
-        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(
+            deleteEntry(ID, DATE, AMOUNT, DETAILS);
+            return true;
+        }
+    };
+
+    private void populateListViewItems() {
+        cursorAdapterWalletEntries = new SimpleCursorAdapter(
                 this,
                 R.layout.list_view_single_wallet_entry_layout,
-                cursor,
+                dbHelper.getAllInDescOrder(startDate, endDate),
                 DBHelper.SELECTED_COLUMNS,
                 TO_VIEW_IDs,
                 0
         );
+        cursorAdapterWalletEntries.setViewBinder(viewBinderWalletEntries);
 
-        listViewWalletEntries.setAdapter(simpleCursorAdapter);
-
-        simpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                int columnIndexOfAmountColumn = 2;
-                if (columnIndex == columnIndexOfAmountColumn) {
-                    long amount = cursor.getLong(columnIndexOfAmountColumn);
-                    ((TextView) view).setText(decimalFormat.format(amount));
-                    return true;
-                }
-                return false;
-            }
-        });
-
+        listViewWalletEntries.setAdapter(cursorAdapterWalletEntries);
         listViewWalletEntries.setLongClickable(true);
-        listViewWalletEntries.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-                String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
-                String DATE = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
-                String AMOUNT = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
-                String DETAILS = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
+        listViewWalletEntries.setOnItemLongClickListener(onItemLongClickListener);
 
-                deleteEntry(ID, DATE, AMOUNT, DETAILS);
-                return true;
-            }
-        });
-
-        setTotalAmount(dbHelper);
+        setTotalAmount();
     }
 
-    private void setTotalAmount(DBHelper dbHelper) {
+    private void updateListViewItems() {
+        cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(startDate, endDate));
+        setTotalAmount();
+    }
+
+    private void setTotalAmount() {
         long totalAmount = dbHelper.getTotalAmount(startDate, endDate);
 
         TextView textViewTotal = findViewById(R.id.textViewTotalAmount);
@@ -284,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 delete(ID);
-                populateListViewItems();
+                updateListViewItems();
                 dialog.dismiss();
             }
         });
