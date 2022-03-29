@@ -45,16 +45,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_WRITE_STORAGE = 200;
     private static final int REQUEST_CODE_READ_STORAGE = 201;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
-    private Button buttonStartDate, buttonEndDate;
-    private ListView listViewWalletEntries;
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
+    private DBHelper dbHelper;
+    private Button buttonStartDate, buttonEndDate;
+    private ListView listViewWalletEntries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dbHelper = new DBHelper(this);
 
         listViewWalletEntries = findViewById(R.id.listViewWalletEntries);
         buttonStartDate = findViewById(R.id.buttonStartDate);
@@ -218,12 +221,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void delete(String id) {
-        new DBHelper(this).deleteOneById(id);
+        dbHelper.deleteOneById(id);
     }
 
     private void populateListViewItems() {
-        DBHelper dbHelper = new DBHelper(this);
-
         Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
 
         SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(
@@ -297,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void exportData() {
         try {
-            String dbRecordsSerialized = new DBHelper(this).getAllSerialized();
+            String dbRecordsSerialized = dbHelper.getAllSerialized();
 
             String fileName = "wallet-backup-" + Utils.getTimeStamp(new Date()) + ".json";
 
