@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void askUserToDeleteThisEntry(final String id, String date, String amount, String description) {
         String msg = String.format(Locale.US,
-                "Do you want to remove this entry from Wallet?\n\n%s\n%s\n%s",
+                "Do you want to remove this entry from Wallet?\n\n%s\n\n%s\n\n%s",
                 date, amount, description);
 
         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
