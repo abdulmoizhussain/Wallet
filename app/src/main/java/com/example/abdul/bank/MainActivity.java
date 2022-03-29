@@ -221,10 +221,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, AddOrSubtract.class));
     }
 
-    public void delete(String id) {
-        dbHelper.deleteOneById(id);
-    }
-
     private final SimpleCursorAdapter.ViewBinder viewBinderWalletEntries = new SimpleCursorAdapter.ViewBinder() {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -237,15 +233,16 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     };
+
     private final AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-            String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
-            String DATE = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
-            String AMOUNT = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
-            String DETAILS = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
+            String dbId = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
+            String date = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
+            String amount = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
+            String description = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
 
-            deleteEntry(ID, DATE, AMOUNT, DETAILS);
+            askUserToDeleteThisEntry(dbId, date, amount, description);
             return true;
         }
     };
@@ -282,15 +279,18 @@ public class MainActivity extends AppCompatActivity {
         textViewTotal.setText(total);
     }
 
-    private void deleteEntry(final String ID, String DATE, String AMOUNT, String DETAILS) {
+    private void askUserToDeleteThisEntry(final String id, String date, String amount, String description) {
+        String msg = String.format(Locale.US,
+                "Do you want to remove this entry from Wallet?\n\n%s\n%s\n%s",
+                date, amount, description);
+
         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        alertDialog.setTitle("Alert");
-        alertDialog.setMessage("Do you want to remove this entry from Wallet?\n\n" +
-                DATE + "\n" + AMOUNT + "\n" + DETAILS);
+        alertDialog.setMessage(msg);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                delete(ID);
+                dbHelper.deleteOneById(id);
                 updateListViewItems();
+
                 dialog.dismiss();
             }
         });
