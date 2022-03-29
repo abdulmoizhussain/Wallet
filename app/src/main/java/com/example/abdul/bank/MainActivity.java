@@ -267,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateListViewItems() {
         cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(startDate, endDate));
-//        cursorAdapterWalletEntries.notifyDataSetChanged();
         setTotalAmount();
     }
 
