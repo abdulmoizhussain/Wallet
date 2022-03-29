@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_READ_STORAGE = 201;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private Button buttonStartDate, buttonEndDate;
+    private ListView listViewWalletEntries;
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        listViewWalletEntries = findViewById(R.id.listViewWalletEntries);
         buttonStartDate = findViewById(R.id.buttonStartDate);
         buttonEndDate = findViewById(R.id.buttonEndDate);
 
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         setStartDate();
         setEndDate();
 
-        populateListViewFromDatabase();
+        populateListViewItems();
     }
 
     /**
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTotal(View v) {
-        populateListViewFromDatabase();
+        populateListViewItems();
     }
 
     public void onClickStartDate(View v) {
@@ -172,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setStartDate(startDate.getTimeInMillis());
 
                 setStartDate();
-                populateListViewFromDatabase();
+                populateListViewItems();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -197,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 new SPManager(MainActivity.this).setEndDate(endDate.getTimeInMillis());
 
                 setEndDate();
-                populateListViewFromDatabase();
+                populateListViewItems();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -219,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         new DBHelper(this).deleteOneById(id);
     }
 
-    private void populateListViewFromDatabase() {
+    private void populateListViewItems() {
         DBHelper dbHelper = new DBHelper(this);
 
         Cursor cursor = dbHelper.getAllInDescOrder(startDate, endDate);
@@ -233,8 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 0
         );
 
-        ListView listView = findViewById(R.id.listViewWalletEntries);
-        listView.setAdapter(simpleCursorAdapter);
+        listViewWalletEntries.setAdapter(simpleCursorAdapter);
 
         simpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
@@ -249,8 +250,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        listView.setLongClickable(true);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        listViewWalletEntries.setLongClickable(true);
+        listViewWalletEntries.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
                 String ID = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
@@ -282,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 delete(ID);
-                populateListViewFromDatabase();
+                populateListViewItems();
                 dialog.dismiss();
             }
         });
