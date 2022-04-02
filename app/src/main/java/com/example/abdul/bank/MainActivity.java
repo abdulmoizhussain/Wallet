@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
     private DBHelper dbHelper;
+    private SPManager spManager;
     private SimpleCursorAdapter cursorAdapterWalletEntries;
     private Button buttonStartDate, buttonEndDate;
     private ListView listViewWalletEntries;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dbHelper = new DBHelper(this);
+        spManager = new SPManager(this);
 
         listViewWalletEntries = findViewById(R.id.listViewWalletEntries);
         buttonStartDate = findViewById(R.id.buttonStartDate);
@@ -71,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
         endDate.set(Calendar.HOUR_OF_DAY, 23);
         endDate.set(Calendar.MINUTE, 59);
         endDate.set(Calendar.SECOND, 59);
-
-        SPManager spManager = new SPManager(this);
 
         long startDateLong = spManager.getStartDate();
         if (startDateLong == 0) {
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 startDate.set(Calendar.MONTH, month);
                 startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                new SPManager(MainActivity.this).setStartDate(startDate.getTimeInMillis());
+                spManager.setStartDate(startDate.getTimeInMillis());
 
                 setStartDate();
                 updateListViewItems();
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 endDate.set(Calendar.MONTH, month);
                 endDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                new SPManager(MainActivity.this).setEndDate(endDate.getTimeInMillis());
+                spManager.setEndDate(endDate.getTimeInMillis());
 
                 setEndDate();
                 updateListViewItems();
