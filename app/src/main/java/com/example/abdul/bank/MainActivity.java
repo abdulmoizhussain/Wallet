@@ -146,9 +146,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == REQUEST_CODE_READ_STORAGE) {
             importData();
         } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            AlertMessage.show("Permission Denied!", "Please provide WRITE-storage permission to export data.", this);
+            AlertMessage.show("Permission Denied!", "Please provide WRITE-storage permission to export data.", this, false);
         } else if (Arrays.asList(permissions).contains(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            AlertMessage.show("Permission Denied!", "Please provide READ-storage permission to import data from backup file.", this);
+            AlertMessage.show("Permission Denied!", "Please provide READ-storage permission to import data from backup file.", this, false);
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -236,11 +236,11 @@ public class MainActivity extends AppCompatActivity {
 
     private final AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-            String dbId = ((TextView) arg1.findViewById(R.id.id_field)).getText().toString();
-            String date = ((TextView) arg1.findViewById(R.id.date_field)).getText().toString();
-            String amount = ((TextView) arg1.findViewById(R.id.amount_field)).getText().toString();
-            String description = ((TextView) arg1.findViewById(R.id.details_field)).getText().toString();
+        public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
+            String dbId = ((TextView) view.findViewById(R.id.id_field)).getText().toString();
+            String date = ((TextView) view.findViewById(R.id.date_field)).getText().toString();
+            String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
+            String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
 
             askUserToDeleteThisEntry(dbId, date, amount, description);
             return true;
@@ -260,6 +260,21 @@ public class MainActivity extends AppCompatActivity {
 
         listViewWalletEntries.setAdapter(cursorAdapterWalletEntries);
         listViewWalletEntries.setLongClickable(true);
+        listViewWalletEntries.setClickable(true);
+        listViewWalletEntries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String date = ((TextView) view.findViewById(R.id.date_field)).getText().toString();
+                String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
+                String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
+
+                String msg = String.format(Locale.US,
+                        "Amount: %s\n\nDetails: %s",
+                        amount, description);
+
+                AlertMessage.show(date, msg, MainActivity.this, true);
+            }
+        });
         listViewWalletEntries.setOnItemLongClickListener(onItemLongClickListener);
 
         setTotalAmount();
@@ -309,13 +324,14 @@ public class MainActivity extends AppCompatActivity {
 
             String backupFilePath = exportToDownloadsFolder(dbRecordsSerialized, fileName);
 
-            AlertMessage.show("Backup has been saved to: ", backupFilePath, this);
+            AlertMessage.show("Backup has been saved to: ", backupFilePath, this, false);
 
         } catch (JSONException | IOException ex) {
             AlertMessage.show(
                     "Failed to Backup !",
                     ex.getMessage(),
-                    this
+                    this,
+                    false
             );
         }
     }
