@@ -3,9 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/drawable/border_bottom.xml" value="0.1" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/drawable/ic_baseline_cloud_download_24.xml" value="0.1205" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/drawable/ic_baseline_cloud_upload_24.xml" value="0.1205" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.1205" />
         <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/activity_add_or_subtract.xml" value="0.1" />
-        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/list_view_single_wallet_entry_layout.xml" value="0.1094224924012158" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/list_view_single_wallet_entry_layout.xml" value="0.33" />
+        <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/layout/rycycler_view.xml" value="0.225" />
         <entry key="..\:/Users/Abdul/Documents/dev/Wallet/app/src/main/res/menu/options_menu.xml" value="0.225" />
       </map>
     </option>

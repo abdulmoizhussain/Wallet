@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
@@ -86,8 +87,8 @@ public class MainActivity extends AppCompatActivity {
             endDate.setTime(new Date(endDateLong));
         }
 
-        setStartDate();
-        setEndDate();
+        setTextStartDate();
+        setTextEndDate();
 
         populateListViewItems();
     }
@@ -153,18 +154,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private void setStartDate() {
-        String text = "StartDate: " + dateFormat.format(new Date(startDate.getTimeInMillis()));
-        buttonStartDate.setText(text);
+    private void setTextStartDate() {
+        buttonStartDate.setText(dateFormat.format(new Date(startDate.getTimeInMillis())));
     }
 
-    private void setEndDate() {
-        String text = "EndDate: " + dateFormat.format(new Date(endDate.getTimeInMillis()));
-        buttonEndDate.setText(text);
-    }
-
-    public void onClickTotal(View v) {
-        updateListViewItems();
+    private void setTextEndDate() {
+        buttonEndDate.setText(dateFormat.format(new Date(endDate.getTimeInMillis())));
     }
 
     public void onClickStartDate(View v) {
@@ -177,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
                 spManager.setStartDate(startDate.getTimeInMillis());
 
-                setStartDate();
+                setTextStartDate();
                 updateListViewItems();
             }
         };
@@ -202,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
                 spManager.setEndDate(endDate.getTimeInMillis());
 
-                setEndDate();
+                setTextEndDate();
                 updateListViewItems();
             }
         };
@@ -247,6 +242,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String date = ((TextView) view.findViewById(R.id.date_field)).getText().toString();
+            String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
+            String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
+
+            String msg = String.format(Locale.US,
+                    "Amount: %s\n\nDetails: %s",
+                    amount, description);
+
+            AlertMessage.show(date, msg, MainActivity.this, true);
+        }
+    };
+
     private void populateListViewItems() {
         cursorAdapterWalletEntries = new SimpleCursorAdapter(
                 this,
@@ -261,20 +271,7 @@ public class MainActivity extends AppCompatActivity {
         listViewWalletEntries.setAdapter(cursorAdapterWalletEntries);
         listViewWalletEntries.setLongClickable(true);
         listViewWalletEntries.setClickable(true);
-        listViewWalletEntries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String date = ((TextView) view.findViewById(R.id.date_field)).getText().toString();
-                String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
-                String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
-
-                String msg = String.format(Locale.US,
-                        "Amount: %s\n\nDetails: %s",
-                        amount, description);
-
-                AlertMessage.show(date, msg, MainActivity.this, true);
-            }
-        });
+        listViewWalletEntries.setOnItemClickListener(onItemClickListener);
         listViewWalletEntries.setOnItemLongClickListener(onItemLongClickListener);
 
         setTotalAmount();
@@ -288,9 +285,12 @@ public class MainActivity extends AppCompatActivity {
     private void setTotalAmount() {
         long totalAmount = dbHelper.getTotalAmount(startDate, endDate);
 
-        TextView textViewTotal = findViewById(R.id.textViewTotalAmount);
         String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(totalAmount));
-        textViewTotal.setText(total);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(total);
+        }
     }
 
     private void askUserToDeleteThisEntry(final String id, String date, String amount, String description) {
