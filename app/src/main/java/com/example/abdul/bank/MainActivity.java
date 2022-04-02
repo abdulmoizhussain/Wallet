@@ -67,13 +67,17 @@ public class MainActivity extends AppCompatActivity {
         buttonStartDate = findViewById(R.id.buttonStartDate);
         buttonEndDate = findViewById(R.id.buttonEndDate);
 
+        // min/max values of Calendar.MILLISECOND (check java-doc of Example 4):
+        // https://www.programcreek.com/java-api-examples/?class=java.util.Calendar&method=MILLISECOND
         startDate.set(Calendar.HOUR_OF_DAY, 0);
         startDate.set(Calendar.MINUTE, 0);
         startDate.set(Calendar.SECOND, 0);
+        startDate.set(Calendar.MILLISECOND, 0);
 
         endDate.set(Calendar.HOUR_OF_DAY, 23);
         endDate.set(Calendar.MINUTE, 59);
         endDate.set(Calendar.SECOND, 59);
+        endDate.set(Calendar.MILLISECOND, 999);
 
         long startDateLong = spManager.getStartDate();
         if (startDateLong == 0) {
