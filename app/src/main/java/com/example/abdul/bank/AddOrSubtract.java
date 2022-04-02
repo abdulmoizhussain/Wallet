@@ -44,7 +44,7 @@ public class AddOrSubtract extends AppCompatActivity {
                 editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
-        String msg = insertionResult ? editTextAmount.getText().toString() + " added to Bank" : "Error! Cannot add";
+        String msg = insertionResult ? editTextAmount.getText().toString() + " added to Wallet" : "Error! Cannot add";
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
         editTextAmount.setText(null);
@@ -67,7 +67,7 @@ public class AddOrSubtract extends AppCompatActivity {
                 editTextDetails.getText().toString()
         );
 
-        String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Bank" : "Error! Cannot subtract";
+        String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Wallet" : "Error! Cannot subtract";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         editTextAmount.setText(null);
