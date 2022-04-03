@@ -1,93 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	tools:context="com.example.abdul.bank.AddOrSubtract">
-	
-	<EditText
-		android:id="@+id/editTextAmount"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:ems="10"
-		android:layout_marginLeft="4dp"
-		android:layout_marginStart="4dp"
-		android:layout_marginTop="4dp"
-		android:inputType="phone"
-		android:digits="1234567890"
-		android:imeOptions="actionNext"
-		app:layout_constraintLeft_toRightOf="@+id/textView2"
-		app:layout_constraintTop_toBottomOf="@+id/textViewDate"/>
-	
-	<EditText
-		android:id="@+id/editTextDetails"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:ems="10"
-		android:inputType="text"
-		app:layout_constraintLeft_toLeftOf="@+id/editTextAmount"
-		app:layout_constraintTop_toBottomOf="@+id/editTextAmount"/>
-	
-	<TextView
-		android:id="@+id/textView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginLeft="8dp"
-		android:layout_marginStart="8dp"
-		android:text="Date: "
-		android:textSize="18sp"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintBaseline_toBaselineOf="@+id/textViewDate"/>
-	
-	<TextView
-		android:id="@+id/textView2"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="Amount: "
-		android:textSize="18sp"
-		app:layout_constraintLeft_toLeftOf="@+id/textView"
-		app:layout_constraintBaseline_toBaselineOf="@+id/editTextAmount"/>
-	
-	<TextView
-		android:id="@+id/textViewDate"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:text=""
-		android:textSize="18sp"
-		app:layout_constraintLeft_toLeftOf="@+id/editTextAmount"
-		app:layout_constraintTop_toTopOf="parent"
-		/>
-	
-	<Button
-		android:id="@+id/button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:onClick="add"
-		android:text="Add"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/editTextDetails"/>
-	
-	<Button
-		android:id="@+id/button2"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:onClick="subtract"
-		android:text="Subtract"
-		app:layout_constraintStart_toEndOf="@+id/button"
-		app:layout_constraintTop_toBottomOf="@+id/editTextDetails"/>
-	
-	<TextView
-		android:id="@+id/textView8"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="Details: "
-		android:textSize="18sp"
-		app:layout_constraintLeft_toLeftOf="@+id/textView2"
-		app:layout_constraintBaseline_toBaselineOf="@+id/editTextDetails"/>
-	
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.abdul.bank.AddOrSubtract">
+
+    <EditText
+        android:id="@+id/editTextAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="4dp"
+        android:autofillHints=""
+        android:digits="1234567890"
+        android:ems="10"
+        android:hint="@string/enter_amount_hint"
+        android:imeOptions="actionNext"
+        android:inputType="phone"
+        android:labelFor="@+id/textViewLabelAmount"
+        app:layout_constraintLeft_toRightOf="@+id/textViewLabelAmount"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDate" />
+
+    <EditText
+        android:id="@+id/editTextDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/enter_amount_description_hint"
+        android:inputType="text"
+        app:layout_constraintLeft_toLeftOf="@+id/editTextAmount"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAmount" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="Date: "
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewDate"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewLabelAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Amount: "
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editTextAmount"
+        app:layout_constraintLeft_toLeftOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="@+id/editTextAmount"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="add"
+        android:text="Add"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDetails" />
+
+    <Button
+        android:id="@+id/buttonSubtract"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="subtract"
+        android:text="Subtract"
+        app:layout_constraintStart_toEndOf="@+id/buttonAdd"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDetails" />
+
+    <TextView
+        android:id="@+id/textViewLabelDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details: "
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editTextDetails"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewLabelAmount" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,4 +2,6 @@
     <string name="app_name">Wallet</string>
     <string name="total">Total: </string>
     <string name="add_or_subtract">Add / Subtract</string>
+    <string name="enter_amount_description_hint">Enter description of that amount.</string>
+    <string name="enter_amount_hint">Enter the amount that you spent or that came into your wallet.</string>
 </resources>
