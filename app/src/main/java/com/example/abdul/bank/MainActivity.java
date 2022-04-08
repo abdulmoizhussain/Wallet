@@ -58,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /// TODO:
+        // Edit feature.
+        // Import feature.
+        // Floating button for an entry.
+        // Google drive backup if possible.
+        // Put icons with import/export options.
+
         dbHelper = new DBHelper(this);
         spManager = new SPManager(this);
 
