@@ -81,18 +81,18 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     private String getYear(Date date) {
-        return new SimpleDateFormat("yyyy", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("yyyy", Locale.US).format(date);
     }
 
     private String getDate(Date date) {
-        return new SimpleDateFormat("dd", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("dd", Locale.US).format(date);
     }
 
     private String getMonth(Date date) {
-        return new SimpleDateFormat("MMM", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("MMM", Locale.US).format(date);
     }
 
     private String getTime(Date date) {
-        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("hh:mm a", Locale.US).format(date);
     }
 }
