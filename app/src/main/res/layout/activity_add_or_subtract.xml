@@ -47,7 +47,6 @@
             android:id="@+id/editTextAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:autofillHints=""
             android:digits="1234567890"
             android:hint="@string/enter_amount_hint"
