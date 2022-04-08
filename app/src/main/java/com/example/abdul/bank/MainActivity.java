@@ -36,7 +36,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_READ_STORAGE = 201;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
     private DBHelper dbHelper;
     private SPManager spManager;
@@ -159,11 +157,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTextStartDate() {
-        buttonStartDate.setText(dateFormat.format(new Date(startDate.getTimeInMillis())));
+        buttonStartDate.setText(Utils.formatAsDateMonthYear(startDate));
     }
 
     private void setTextEndDate() {
-        buttonEndDate.setText(dateFormat.format(new Date(endDate.getTimeInMillis())));
+        buttonEndDate.setText(Utils.formatAsDateMonthYear(endDate));
     }
 
     public void onClickStartDate(View v) {
