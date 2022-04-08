@@ -14,6 +14,44 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/buttonClearSearchTerm"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:padding="0dp"
+                android:text="X"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/editTextSearchTerm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Type keyword to search for."
+                android:importantForAutofill="no"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/buttonSearch"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:drawableEnd="@drawable/ic_baseline_search_24"
+                android:drawableRight="@drawable/ic_baseline_search_24"
+                android:paddingVertical="0dp"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingEnd="7dp"
+                android:paddingRight="7dp"
+                android:text=""
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_bottom"
             android:baselineAligned="false"
