@@ -101,6 +101,22 @@ public class MainActivity extends AppCompatActivity {
         setTextEndDate();
 
         populateListViewItems();
+
+        // Attaching listeners:
+        findViewById(R.id.buttonClearSearchTerm).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(MainActivity.this, "Tap to clear search term.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+        findViewById(R.id.buttonSearch).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(MainActivity.this, "Tap to find entries with the typed search term.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
     /**
