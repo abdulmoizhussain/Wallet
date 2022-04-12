@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         /// TODO:
         // Edit feature.
         // Import feature.
+        // Show Details in popup inside disabled EditText, for the text to be selectable/copyable.
         // Floating button for an entry.
         // Google drive backup if possible.
         // Put icons with import/export options.
