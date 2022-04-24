@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.EditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,11 +52,14 @@ public class DBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    public Cursor getAllInDescOrder(Calendar startDateMillis, Calendar endDateMillis) {
+    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
         SQLiteDatabase db = this.getReadableDatabase();
 
+        String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
+
         String raw_query = String.format(Locale.US,
-                "SELECT _id,Date,Amount,Details FROM Wallet WHERE DateLong >= %d AND DateLong <= %d ORDER BY _id DESC",
+                "SELECT _id,Date,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY _id DESC",
+                search_term,
                 startDateMillis.getTimeInMillis(),
                 endDateMillis.getTimeInMillis()
         );
@@ -67,10 +71,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public long getTotalAmount(Calendar startDateMillis, Calendar endDateMillis) {
-        String sql_query_format = "SELECT SUM(Amount) AS Total FROM Wallet WHERE DateLong >= %d AND DateLong <= %d";
+    public long getTotalAmount(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
+        String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
+
         String raw_query = String.format(Locale.US,
-                sql_query_format,
+                "SELECT SUM(Amount) AS Total FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d",
+                search_term,
                 startDateMillis.getTimeInMillis(),
                 endDateMillis.getTimeInMillis()
         );

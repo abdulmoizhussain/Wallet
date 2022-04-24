@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
+    private EditText editTextSearchTerm;
     private DBHelper dbHelper;
     private SPManager spManager;
     private SimpleCursorAdapter cursorAdapterWalletEntries;
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         listViewWalletEntries = findViewById(R.id.listViewWalletEntries);
         buttonStartDate = findViewById(R.id.buttonStartDate);
         buttonEndDate = findViewById(R.id.buttonEndDate);
+
+        editTextSearchTerm = findViewById(R.id.editTextSearchTerm);
 
         // min/max values of Calendar.MILLISECOND (check java-doc of Example 4):
         // https://www.programcreek.com/java-api-examples/?class=java.util.Calendar&method=MILLISECOND
@@ -107,18 +111,33 @@ public class MainActivity extends AppCompatActivity {
         populateListViewItems();
 
         // Attaching listeners:
-        findViewById(R.id.buttonClearSearchTerm).setOnLongClickListener(new View.OnLongClickListener() {
+        Button buttonClearSearchTerm = findViewById(R.id.buttonClearSearchTerm);
+        buttonClearSearchTerm.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 Toast.makeText(MainActivity.this, "Tap to clear search term.", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
-        findViewById(R.id.buttonSearch).setOnLongClickListener(new View.OnLongClickListener() {
+        buttonClearSearchTerm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editTextSearchTerm.setText("");
+            }
+        });
+
+        Button buttonSearch = findViewById(R.id.buttonSearch);
+        buttonSearch.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 Toast.makeText(MainActivity.this, "Tap to find entries with the typed search term.", Toast.LENGTH_SHORT).show();
                 return false;
+            }
+        });
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateListViewItems();
             }
         });
     }
@@ -313,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
         cursorAdapterWalletEntries = new SimpleCursorAdapter(
                 this,
                 R.layout.list_view_single_wallet_entry_layout,
-                dbHelper.getAllInDescOrder(startDate, endDate),
+                dbHelper.getAllInDescOrder(editTextSearchTerm, startDate, endDate),
                 DBHelper.SELECTED_COLUMNS,
                 TO_VIEW_IDs,
                 0
@@ -330,12 +349,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateListViewItems() {
-        cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(startDate, endDate));
+        cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(editTextSearchTerm, startDate, endDate));
         setTotalAmount();
     }
 
     private void setTotalAmount() {
-        long totalAmount = dbHelper.getTotalAmount(startDate, endDate);
+        long totalAmount = dbHelper.getTotalAmount(editTextSearchTerm, startDate, endDate);
 
         String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(totalAmount));
 
