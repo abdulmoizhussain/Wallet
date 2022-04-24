@@ -63,11 +63,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /// TODO:
+        // Complete Search feature.
         // Edit feature.
         // Import feature.
+        // Put icons with import/export options.
         // Floating button for an entry.
         // Google drive backup if possible.
-        // Put icons with import/export options.
 
         dbHelper = new DBHelper(this);
         spManager = new SPManager(this);
@@ -388,6 +389,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void importData() {
+        // source:
+        // https://stackoverflow.com/a/36558378/8075004
+        // https://stackoverflow.com/a/67639241/8075004
+        // https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
+        // application/json
+        // https://stackoverflow.com/a/61343993/8075004
+
         Intent intent = new Intent()
                 .setType("*/*")
                 .setAction(Intent.ACTION_GET_CONTENT);
