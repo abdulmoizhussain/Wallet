@@ -30,10 +30,13 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
 import org.json.JSONException;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -44,6 +47,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_WRITE_STORAGE = 200;
     private static final int REQUEST_CODE_READ_STORAGE = 201;
+    private static final int REQUEST_CODE_IMPORT_FILE = 202;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
@@ -116,6 +120,28 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
+            Uri uri = data.getData(); //The uri with the location of the file
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+
+                for (String line; (line = reader.readLine()) != null; ) {
+                    stringBuilder.append(line).append('\n');
+                }
+                String content = stringBuilder.toString();
+
+                AlertMessage.show("content", content, this, false);
+            } catch (Exception e) {
+                AlertMessage.show("Error", e.getMessage(), this, false);
+            }
+        }
     }
 
     /**
@@ -362,7 +388,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void importData() {
-        Toast.makeText(this, "Not implemented yet.", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT);
+
+        startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_CODE_IMPORT_FILE);
     }
 
     private String exportToDownloadsFolder(String serializedData, String fileNameWithExtension) throws IOException {
