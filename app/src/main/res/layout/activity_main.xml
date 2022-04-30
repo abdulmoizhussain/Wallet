@@ -7,8 +7,10 @@
     tools:context="com.example.abdul.bank.MainActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayoutParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusableInTouchMode="true"
         android:orientation="vertical"
         android:weightSum="100">
 

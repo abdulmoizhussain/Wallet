@@ -2,6 +2,7 @@ package com.example.abdul.bank;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 editTextSearchTerm.setText("");
+                shiftFocusToButton();
             }
         });
 
@@ -138,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 updateListViewItems();
+                shiftFocusToButton();
             }
         });
     }
@@ -434,5 +438,17 @@ public class MainActivity extends AppCompatActivity {
         output.close();
 
         return backupFileAbsolutePath;
+    }
+
+    private void shiftFocusToButton() {
+        findViewById(R.id.linearLayoutParent).requestFocus();
+
+        // source: https://stackoverflow.com/a/54759383/8075004
+        // https://stackoverflow.com/q/4165414/8075004
+        InputMethodManager inputMethodManager = (InputMethodManager) (MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE));
+        inputMethodManager.hideSoftInputFromWindow(editTextSearchTerm.getWindowToken(), 0);
+
+        // source: https://stackoverflow.com/a/39884008/8075004
+        editTextSearchTerm.clearFocus();
     }
 }
