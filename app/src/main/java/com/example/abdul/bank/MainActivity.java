@@ -124,8 +124,9 @@ public class MainActivity extends AppCompatActivity {
         buttonClearSearchTerm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editTextSearchTerm.setText("");
-                shiftFocusToButton();
+                editTextSearchTerm.getText().clear();
+                updateListViewItems();
+                shiftFocusFromEditTextAndHideSoftKeyboard();
             }
         });
 
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 updateListViewItems();
-                shiftFocusToButton();
+                shiftFocusFromEditTextAndHideSoftKeyboard();
             }
         });
     }
@@ -440,15 +441,15 @@ public class MainActivity extends AppCompatActivity {
         return backupFileAbsolutePath;
     }
 
-    private void shiftFocusToButton() {
-        findViewById(R.id.linearLayoutParent).requestFocus();
+    private void shiftFocusFromEditTextAndHideSoftKeyboard() {
+        // source: https://stackoverflow.com/a/39884008/8075004
+        editTextSearchTerm.clearFocus();
 
         // source: https://stackoverflow.com/a/54759383/8075004
         // https://stackoverflow.com/q/4165414/8075004
         InputMethodManager inputMethodManager = (InputMethodManager) (MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE));
         inputMethodManager.hideSoftInputFromWindow(editTextSearchTerm.getWindowToken(), 0);
 
-        // source: https://stackoverflow.com/a/39884008/8075004
-        editTextSearchTerm.clearFocus();
+        findViewById(R.id.linearLayoutParent).requestFocus();
     }
 }
