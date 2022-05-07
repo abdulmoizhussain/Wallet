@@ -436,8 +436,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            if (fileSizeInBytes > (100 * 1000000)) {
-                AlertMessage.show("Error!", "File size is greater than 100 MB. Please select correct file.", this, false);
+            if (fileSizeInBytes > (10 * 1000000)) {
+                AlertMessage.show("Error!", "File size is greater than 10 MB. Please select correct file.", this, false);
                 return;
             }
 
