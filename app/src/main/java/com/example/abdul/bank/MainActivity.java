@@ -2,6 +2,7 @@ package com.example.abdul.bank;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /// TODO:
-        // Complete Search feature.
         // Edit feature.
         // Import feature.
         // Put icons with import/export options.
@@ -151,40 +151,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
-            Uri uri = data.getData(); //The uri with the location of the file
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(uri);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder stringBuilder = new StringBuilder();
-
-                for (String line; (line = reader.readLine()) != null; ) {
-                    stringBuilder.append(line).append('\n');
-                }
-                String content = stringBuilder.toString();
-
-                AlertMessage.show("content", content, this, false);
-            } catch (Exception e) {
-                AlertMessage.show("Error", e.getMessage(), this, false);
-            }
+            importDataFromUri(data.getData());
         }
-    }
-
-    /**
-     * Requires: Android 8 - Oreo.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void openFilePickerDialogue(String fileName, int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TITLE, fileName);
-
-        // Optionally, specify a URI for the directory that should be opened in
-        // the system file picker when your app creates the document.
-        Uri uri = Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
-
-        startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -419,12 +387,75 @@ public class MainActivity extends AppCompatActivity {
         // https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
         // application/json
         // https://stackoverflow.com/a/61343993/8075004
+        // https://developer.android.com/training/data-storage/shared/documents-files#java
+        String action = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT;
 
-        Intent intent = new Intent()
-                .setType("*/*")
-                .setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(action);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_CODE_IMPORT_FILE);
+        // why not directly selecting JSON files?
+        // reason: https://stackoverflow.com/a/34402101/8075004
+        intent.setType("text/plain");
+
+        // When need to pass multiple mime-types:
+        // https://stackoverflow.com/a/33117677/8075004
+        // https://stackoverflow.com/a/23426753/8075004
+        // https://stackoverflow.com/q/28978581/8075004
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Uri uri = Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+        }
+
+        startActivityForResult(Intent.createChooser(intent, "Select the backup file"), REQUEST_CODE_IMPORT_FILE);
+    }
+
+    /**
+     * @param uri The Uri with the location of the file.
+     */
+    private void importDataFromUri(Uri uri) {
+        try {
+            ContentResolver contentResolver = getContentResolver();
+            String scheme = uri.getScheme();
+            long fileSizeInBytes = 0;
+
+            switch (scheme) {
+                case "file":
+                    fileSizeInBytes = new File(uri.getPath()).length();
+                    break;
+                case "content":
+                    Cursor cursor = contentResolver.query(uri, new String[]{OpenableColumns.SIZE}, null, null, null);
+                    int columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (columnIndex != -1 && cursor.moveToFirst() /* cursor.getCount() */) {
+                        fileSizeInBytes = cursor.getLong(columnIndex);
+                    }
+                    cursor.close();
+                    break;
+                default:
+                    AlertMessage.show("Error!", "Unhandled Uri scheme: " + scheme, this, false);
+                    break;
+            }
+
+            if (fileSizeInBytes > (100 * 1000000)) {
+                AlertMessage.show("Error!", "File size is greater than 100 MB. Please select correct file.", this, false);
+                return;
+            }
+
+            InputStream inputStream = contentResolver.openInputStream(uri);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.append(uri.getPath()).append("\n\n");
+
+            for (String line; (line = reader.readLine()) != null; ) {
+                stringBuilder.append(line).append('\n');
+            }
+            String content = stringBuilder.toString();
+
+            AlertMessage.show("content", content, this, false);
+        } catch (Exception e) {
+            AlertMessage.show("Error", e.toString(), this, false);
+        }
     }
 
     private String exportToDownloadsFolder(String serializedData, String fileNameWithExtension) throws IOException {
@@ -433,7 +464,6 @@ public class MainActivity extends AppCompatActivity {
                 .getAbsolutePath() + "/" + fileNameWithExtension;
 
         File file = new File(backupFileAbsolutePath);
-
         Writer output = new BufferedWriter(new FileWriter(file));
         output.write(serializedData);
         output.close();
