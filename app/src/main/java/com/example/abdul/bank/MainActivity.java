@@ -421,7 +421,20 @@ public class MainActivity extends AppCompatActivity {
 
             switch (scheme) {
                 case "file":
-                    fileSizeInBytes = new File(uri.getPath()).length();
+                    String filePath = uri.getPath();
+
+                    String extension = "";
+                    int index = filePath.lastIndexOf('.');
+                    if (index > -1) {
+                        extension = filePath.substring(index);
+                    }
+                    if (!extension.equals(".txt")) {
+                        AlertMessage.show("Error", "Please select a \".txt\" file.", this, false);
+                        return;
+                    }
+
+                    File file = new File(filePath);
+                    fileSizeInBytes = file.length();
                     break;
                 case "content":
                     Cursor cursor = contentResolver.query(uri, new String[]{OpenableColumns.SIZE}, null, null, null);
