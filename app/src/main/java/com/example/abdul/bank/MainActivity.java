@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -370,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             String dbRecordsSerialized = dbHelper.getAllSerialized();
 
-            String fileName = "wallet-backup-" + Utils.getTimeStamp(new Date()) + ".json";
+            String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + Utils.getTimeStamp(new Date()) + ".json.txt";
 
             String backupFilePath = exportToDownloadsFolder(dbRecordsSerialized, fileName);
 
