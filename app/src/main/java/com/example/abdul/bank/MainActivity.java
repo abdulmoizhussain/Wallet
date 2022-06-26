@@ -32,7 +32,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import com.example.abdul.bank.modelscore.WalletCore;
+
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -43,9 +47,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
         /// TODO:
         // Edit feature.
-        // Import feature.
-        // Put icons with import/export options.
         // Floating button for an entry.
         // Google drive backup if possible.
 
@@ -151,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
-            importDataFromUri(data.getData());
+            importDataStep2_ReadFromUri(data.getData());
         }
     }
 
@@ -170,8 +174,10 @@ public class MainActivity extends AppCompatActivity {
             exportData();
             return true;
         } else if (R.id.option_import_data == item_id && PermissionManager.checkReadStoragePermission(this, REQUEST_CODE_READ_STORAGE)) {
-            importData();
+            importDataStep1_OpenFilePicker();
             return true;
+        } else if (R.id.option_delete_all == item_id) {
+            askAndDeleteAllWalletEntries();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -189,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_WRITE_STORAGE) {
             exportData();
         } else if (requestCode == REQUEST_CODE_READ_STORAGE) {
-            importData();
+            importDataStep1_OpenFilePicker();
         } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertMessage.show("Permission Denied!", "Please provide WRITE-storage permission to export data.", this, false);
         } else if (Arrays.asList(permissions).contains(Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -380,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void importData() {
+    private void importDataStep1_OpenFilePicker() {
         // source:
         // https://stackoverflow.com/a/36558378/8075004
         // https://stackoverflow.com/a/67639241/8075004
@@ -413,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * @param uri The Uri with the location of the file.
      */
-    private void importDataFromUri(Uri uri) {
+    private void importDataStep2_ReadFromUri(Uri uri) {
         try {
             ContentResolver contentResolver = getContentResolver();
             String scheme = uri.getScheme();
@@ -458,16 +464,36 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.append(uri.getPath()).append("\n\n");
-
             for (String line; (line = reader.readLine()) != null; ) {
                 stringBuilder.append(line).append('\n');
             }
-            String content = stringBuilder.toString();
+            String serializedData = stringBuilder.toString();
 
-            AlertMessage.show("content", content, this, false);
-        } catch (Exception e) {
-            AlertMessage.show("Error", e.toString(), this, false);
+            JSONArray jsonArray = new JSONArray(serializedData);
+            int jsonArrayLength = jsonArray.length();
+
+            List<WalletCore> walletCoreList = new ArrayList<>();
+
+            for (int index = 0; index < jsonArrayLength; index++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(index);
+                WalletCore walletCore = new WalletCore();
+
+                walletCore.dateString = jsonObject.getString("date_string");
+                walletCore.dateLong = jsonObject.getLong("date_long");
+                walletCore.amount = jsonObject.getLong("amount");
+                walletCore.details = jsonObject.getString("details");
+
+                walletCoreList.add(walletCore);
+            }
+
+            dbHelper.insertMany(walletCoreList);
+
+            updateListViewItems();
+
+            AlertMessage.show("Success!", "Backup has been restored successfully.", this, false);
+
+        } catch (Exception exception) {
+            AlertMessage.show("Error", exception.toString(), this, false);
         }
     }
 
@@ -494,5 +520,25 @@ public class MainActivity extends AppCompatActivity {
         inputMethodManager.hideSoftInputFromWindow(editTextSearchTerm.getWindowToken(), 0);
 
         findViewById(R.id.linearLayoutParent).requestFocus();
+    }
+
+    private void askAndDeleteAllWalletEntries() {
+        String msg = "Are you sure you want to delete all the wallet entries?\nThis can't be undone.\nYou should create a backup first.";
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setMessage(msg);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dbHelper.deleteAllEntriesFromWallet();
+                updateListViewItems();
+                dialog.dismiss();
+            }
+        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 }

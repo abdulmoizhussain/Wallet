@@ -7,11 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.EditText;
 
+import com.example.abdul.bank.modelscore.WalletCore;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -50,6 +53,29 @@ public class DBHelper extends SQLiteOpenHelper {
         long result = db.insert("Wallet", null, contentValues);
 
         return result != -1;
+    }
+
+    void insertMany(List<WalletCore> walletCoreList) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            for (WalletCore walletCore : walletCoreList) {
+                ContentValues contentValues = new ContentValues();
+
+                contentValues.put("Date", walletCore.dateString);
+                contentValues.put("DateLong", walletCore.dateLong);
+                contentValues.put("Amount", walletCore.amount);
+                contentValues.put("Details", walletCore.details);
+
+                db.insert("Wallet", null, contentValues);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        db.close();
     }
 
     public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
@@ -128,6 +154,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.delete("Wallet", "_id = ?", new String[]{auto_increment_id});
         // equivalent raw query: DELETE FROM Wallet WHERE _id = auto_increment_id
+
+        db.close();
+    }
+
+    public void deleteAllEntriesFromWallet() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("DELETE FROM Wallet");
 
         db.close();
     }
