@@ -6,6 +6,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by Abdul on 10/20/2017.
  * ...
@@ -91,5 +100,43 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
         cursor.close();
         return total;
+    }
+
+    public String getAllSerialized() throws JSONException, ParseException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+//        Cursor cursor = db.rawQuery("SELECT _id,Date,DateLong,Amount,Details FROM Wallet", null);
+        Cursor cursor = db.rawQuery("SELECT _id,Date,Amount,Details FROM Wallet", null);
+
+        JSONArray jsonArray = new JSONArray();
+
+        if (cursor.moveToFirst()) {
+            do {
+                JSONObject jsonObject = new JSONObject();
+
+                jsonObject.put("_id", cursor.getLong(0));
+
+                //==================================================
+                String dateString = cursor.getString(1);
+                jsonObject.put("date_string", dateString);
+//                jsonObject.put("date_long", cursor.getLong(2));
+                Date date1 = new SimpleDateFormat("dd/MM/yyyy", Locale.US).parse(dateString);
+                System.out.println(dateString + "\t" + date1);
+                //==================================================
+
+
+                jsonObject.put("amount", cursor.getLong(2));
+                jsonObject.put("details", cursor.getString(3));
+
+                jsonArray.put(jsonObject);
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        this.close();
+
+        return jsonArray.toString();
     }
 }
