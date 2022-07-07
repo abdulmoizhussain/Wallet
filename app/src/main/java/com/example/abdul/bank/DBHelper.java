@@ -11,9 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by Abdul on 10/20/2017.
@@ -105,7 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getAllSerialized() throws JSONException, ParseException {
         SQLiteDatabase db = this.getReadableDatabase();
 
-//        Cursor cursor = db.rawQuery("SELECT _id,Date,DateLong,Amount,Details FROM Wallet", null);
+//      Cursor cursor = db.rawQuery("SELECT _id,Date,DateLong,Amount,Details FROM Wallet", null);
         Cursor cursor = db.rawQuery("SELECT _id,Date,Amount,Details FROM Wallet", null);
 
         JSONArray jsonArray = new JSONArray();
@@ -115,16 +113,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 JSONObject jsonObject = new JSONObject();
 
                 jsonObject.put("_id", cursor.getLong(0));
-
                 //==================================================
                 String dateString = cursor.getString(1);
-                jsonObject.put("date_string", dateString);
-//                jsonObject.put("date_long", cursor.getLong(2));
-                Date date1 = new SimpleDateFormat("dd/MM/yyyy", Locale.US).parse(dateString);
-                System.out.println(dateString + "\t" + date1);
+                Date date = Utils.parseFrom12HourDateTime(dateString);
+                // jsonObject.put("date_long", cursor.getLong(2));
+                jsonObject.put("date_long", date.getTime());
                 //==================================================
-
-
+                jsonObject.put("date_string", dateString);
                 jsonObject.put("amount", cursor.getLong(2));
                 jsonObject.put("details", cursor.getString(3));
 

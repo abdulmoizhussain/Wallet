@@ -9,9 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class AddOrSubtract extends AppCompatActivity {
     EditText editTextAmount, editTextDetails;
@@ -22,11 +20,9 @@ public class AddOrSubtract extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_or_subtract);
 
-        textViewDate = (TextView) findViewById(R.id.textViewDate);
+        textViewDate = findViewById(R.id.textViewDate);
 
-        Date date = new Date();
-        String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
-        textViewDate.setText(timeStamp);
+        textViewDate.setText(Utils.formatTo12HourDateTime(new Date()));
     }
 
     public void add(View v) {
@@ -77,21 +73,5 @@ public class AddOrSubtract extends AppCompatActivity {
     private void goBack() {
         finish();
         startActivity(new Intent(this, MainActivity.class));
-    }
-
-    private String getYear(Date date) {
-        return new SimpleDateFormat("yyyy", Locale.getDefault()).format(date);
-    }
-
-    private String getDate(Date date) {
-        return new SimpleDateFormat("dd", Locale.getDefault()).format(date);
-    }
-
-    private String getMonth(Date date) {
-        return new SimpleDateFormat("MMM", Locale.getDefault()).format(date);
-    }
-
-    private String getTime(Date date) {
-        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
     }
 }
