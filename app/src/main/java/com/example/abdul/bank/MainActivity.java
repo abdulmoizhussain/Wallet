@@ -32,6 +32,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import com.example.abdul.bank.common.RequestCode;
 import com.example.abdul.bank.modelscore.WalletCore;
 
 import org.json.JSONArray;
@@ -50,9 +51,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_CODE_WRITE_STORAGE = 200;
-    private static final int REQUEST_CODE_READ_STORAGE = 201;
-    private static final int REQUEST_CODE_IMPORT_FILE = 202;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
@@ -149,9 +147,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
+        if (requestCode == RequestCode.REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
             importDataStep2_ReadFromUri(data);
-        } else if (requestCode == Globals.REQUEST_CODE_CREATE_EXPORT_FILE && resultCode == RESULT_OK) {
+        } else if (requestCode == RequestCode.REQUEST_CODE_CREATE_EXPORT_FILE && resultCode == RESULT_OK) {
             ExportData.exportData_ToUserSelectedDirectory(this, data, dbHelper);
         }
     }
@@ -167,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int item_id = item.getItemId();
 
-        if (R.id.option_export_data == item_id && PermissionManager.checkWriteStoragePermission(this, REQUEST_CODE_WRITE_STORAGE)) {
+        if (R.id.option_export_data == item_id && PermissionManager.checkWriteStoragePermission(this, RequestCode.REQUEST_CODE_WRITE_STORAGE)) {
             ExportData.exportData_Step1(this, dbHelper);
             return true;
-        } else if (R.id.option_import_data == item_id && PermissionManager.checkReadStoragePermission(this, REQUEST_CODE_READ_STORAGE)) {
+        } else if (R.id.option_import_data == item_id && PermissionManager.checkReadStoragePermission(this, RequestCode.REQUEST_CODE_READ_STORAGE)) {
             importDataStep1_OpenFilePicker();
             return true;
         } else if (R.id.option_delete_all == item_id) {
@@ -192,9 +190,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_WRITE_STORAGE) {
+        if (requestCode == RequestCode.REQUEST_CODE_WRITE_STORAGE) {
             ExportData.exportData_Step1(this, dbHelper);
-        } else if (requestCode == REQUEST_CODE_READ_STORAGE) {
+        } else if (requestCode == RequestCode.REQUEST_CODE_READ_STORAGE) {
             importDataStep1_OpenFilePicker();
         } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertMessage.show("Permission Denied!", "Please provide WRITE-storage permission to export data.", this, false);
@@ -393,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
         }
 
-        startActivityForResult(Intent.createChooser(intent, "Select the backup file"), REQUEST_CODE_IMPORT_FILE);
+        startActivityForResult(Intent.createChooser(intent, "Select the backup file"), RequestCode.REQUEST_CODE_IMPORT_FILE);
     }
 
     private void importDataStep2_ReadFromUri(Intent intent) {
