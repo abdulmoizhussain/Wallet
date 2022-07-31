@@ -41,7 +41,7 @@ public class ExportData {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
-        ((Activity) context).startActivityForResult(intent, RequestCode.REQUEST_CODE_CREATE_EXPORT_FILE);
+        ((Activity) context).startActivityForResult(intent, RequestCode.CREATE_EXPORT_FILE);
     }
 
     public static void exportData_ToUserSelectedDirectory(Context context, Intent intent, DBHelper dbHelper) {
