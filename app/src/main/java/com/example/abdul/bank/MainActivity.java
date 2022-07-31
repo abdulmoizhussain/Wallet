@@ -35,19 +35,12 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import com.example.abdul.bank.modelscore.WalletCore;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_WRITE_STORAGE = 200;
     private static final int REQUEST_CODE_READ_STORAGE = 201;
     private static final int REQUEST_CODE_IMPORT_FILE = 202;
-    private static final int REQUEST_CODE_CREATE_EXPORT_FILE = 203;
     private final Calendar startDate = Calendar.getInstance(), endDate = Calendar.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat("##,##,##,##,###.##");
     private static final int[] TO_VIEW_IDs = new int[]{R.id.id_field, R.id.date_field, R.id.amount_field, R.id.details_field};
@@ -159,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_IMPORT_FILE && resultCode == RESULT_OK) {
             importDataStep2_ReadFromUri(data);
-        } else if (requestCode == REQUEST_CODE_CREATE_EXPORT_FILE && resultCode == RESULT_OK) {
-            exportData_ToUserSelectedDirectory(data);
+        } else if (requestCode == Globals.REQUEST_CODE_CREATE_EXPORT_FILE && resultCode == RESULT_OK) {
+            ExportData.exportData_ToUserSelectedDirectory(this, data, dbHelper);
         }
     }
 
@@ -176,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         int item_id = item.getItemId();
 
         if (R.id.option_export_data == item_id && PermissionManager.checkWriteStoragePermission(this, REQUEST_CODE_WRITE_STORAGE)) {
-            exportData_Step1();
+            ExportData.exportData_Step1(this, dbHelper);
             return true;
         } else if (R.id.option_import_data == item_id && PermissionManager.checkReadStoragePermission(this, REQUEST_CODE_READ_STORAGE)) {
             importDataStep1_OpenFilePicker();
@@ -201,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_WRITE_STORAGE) {
-            exportData_Step1();
+            ExportData.exportData_Step1(this, dbHelper);
         } else if (requestCode == REQUEST_CODE_READ_STORAGE) {
             importDataStep1_OpenFilePicker();
         } else if (Arrays.asList(permissions).contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -374,79 +366,6 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void exportData_ToUserSelectedDirectory(Intent intent) {
-        String fileName = intent.getStringExtra(Intent.EXTRA_TITLE);
-        try {
-            Uri uri = intent.getData();
-            String filePath = uri.getPath();
-            ContentResolver contentResolver = getContentResolver();
-            String scheme = uri.getScheme();
-//            String dbRecordsSerialized = dbHelper.getAllSerialized();
-//            String backupFilePath = exportToDownloadsFolder(dbRecordsSerialized, fileName);
-//            AlertMessage.show("Backup has been saved to: ", backupFilePath, this, false);
-            String nulll = null;
-            switch (scheme) {
-                case "content":
-                    OutputStream outputStream = contentResolver.openOutputStream(uri);
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                    writer.write("[]");
-                    writer.close();
-                    break;
-                default:
-                    AlertMessage.show(
-                            "ERROR",
-                            String.format(Locale.US, "Invalid scheme: %s. Please contact support.", scheme),
-                            this,
-                            false);
-                    break;
-            }
-//        } catch (JSONException | IOException ex) {
-        } catch (Exception ex) {
-            AlertMessage.show(
-                    "Failed to Backup !",
-                    ex.getMessage(),
-                    this,
-                    false
-            );
-        }
-    }
-
-    private void exportData_ToDownloadsDirectory(String fileName) {
-        try {
-            String dbRecordsSerialized = dbHelper.getAllSerialized();
-
-            String backupFilePath = exportToDownloadsFolder(dbRecordsSerialized, fileName);
-
-            AlertMessage.show("Backup has been saved to: ", backupFilePath, this, false);
-
-        } catch (JSONException | IOException ex) {
-            AlertMessage.show(
-                    "Failed to Backup !",
-                    ex.getMessage(),
-                    this,
-                    false
-            );
-        }
-    }
-
-    private void exportData_Step1() {
-        String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + Utils.getTimeStamp(new Date()) + ".json.txt";
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            exportData_ToDownloadsDirectory(fileName);
-            return;
-        }
-
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TITLE, fileName);
-//        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
-        startActivityForResult(intent, REQUEST_CODE_CREATE_EXPORT_FILE);
-    }
-
-
     private void importDataStep1_OpenFilePicker() {
         // source:
         // https://stackoverflow.com/a/36558378/8075004
@@ -554,19 +473,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception exception) {
             AlertMessage.show("Error", exception.toString(), this, false);
         }
-    }
-
-    private String exportToDownloadsFolder(String serializedData, String fileNameWithExtension) throws IOException {
-        String backupFileAbsolutePath = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .getAbsolutePath() + "/" + fileNameWithExtension;
-
-        File file = new File(backupFileAbsolutePath);
-        Writer output = new BufferedWriter(new FileWriter(file));
-        output.write(serializedData);
-        output.close();
-
-        return backupFileAbsolutePath;
     }
 
     private void shiftFocusFromEditTextAndHideSoftKeyboard() {
