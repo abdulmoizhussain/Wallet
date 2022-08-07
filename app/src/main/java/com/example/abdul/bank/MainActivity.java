@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             askAndDeleteAllWalletEntries();
         } else if (R.id.option_about_app == item_id) {
             // something here
-            aboutApplication();
+            AboutApp.showAsAlertPopUp(this);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -504,19 +504,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         alertDialog.show();
-    }
-
-    private void aboutApplication() {
-        String title = "About " + getResources().getString(R.string.app_name) + " App";
-
-        String message = String.format(Locale.US,
-                "Version: %s\nVersion code: %s\n\nEmail your suggestions (or application issues) here at %s or post them here %s",
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                getResources().getString(R.string.support_email),
-                getResources().getString(R.string.github_issues_url)
-        );
-
-        AlertMessage.show(title, message, this, false);
     }
 }
