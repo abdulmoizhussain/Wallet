@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -44,8 +43,6 @@ public class AboutApp {
         dialogBuilder.setView(dialogView);
 
         AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setCancelable(false);
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok", (Message) null);
         alertDialog.show();
     }
 
