@@ -1,5 +1,5 @@
 # Wallet
-Log your regular expenses.
+Keep a history (log) of your regular expenses. A completely offline Wallet Android App.
 
 
 ## [Download Now (APK file)][1] (version: 1.0.8)
