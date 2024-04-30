@@ -48,13 +48,27 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/textView5"
         app:layout_constraintStart_toEndOf="@+id/textView5" />
 
+    <!--
+    source 1:
+    https://stackoverflow.com/questions/4851659/how-to-wrap-text-in-textview-in-android
+    android:layout_weight="1"
+    android:ellipsize="none"
+    android:maxLines="50"
+    android:scrollHorizontally="true"
+
+    source 2:
+    https://stackoverflow.com/questions/66527876/textview-cant-wrap-arround-text-in-constraintlayout
+    -->
     <TextView
         android:id="@+id/details_field"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:width="0dp"
         android:text=""
         android:textSize="18sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView9"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/amount_field" />
 
     <TextView

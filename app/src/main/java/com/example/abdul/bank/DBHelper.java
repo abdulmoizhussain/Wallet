@@ -84,7 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
 
         String raw_query = String.format(Locale.US,
-                "SELECT _id,Date,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY _id DESC",
+                "SELECT _id,Date,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY DateLong DESC, _id DESC",
                 search_term,
                 startDateMillis.getTimeInMillis(),
                 endDateMillis.getTimeInMillis()

@@ -1,22 +1,27 @@
 package com.example.abdul.bank;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class AddOrSubtract extends AppCompatActivity {
     private EditText editTextAmount, editTextDetails;
     private TextView textViewDate;
-    private Date date;
+    private Calendar calendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +30,13 @@ public class AddOrSubtract extends AppCompatActivity {
 
         textViewDate = findViewById(R.id.textViewDate);
 
-        date = new Date();
+        calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        formatAndSetTimeStamp(calendar);
+    }
+
+    private void formatAndSetTimeStamp(Calendar calendar) {
+        Date date = new Date(calendar.getTimeInMillis());
         String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
         textViewDate.setText(timeStamp);
     }
@@ -40,7 +51,7 @@ public class AddOrSubtract extends AppCompatActivity {
 
         boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
-                date.getTime(),
+                calendar.getTimeInMillis(),
                 editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
@@ -62,7 +73,7 @@ public class AddOrSubtract extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(this);
         boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
-                date.getTime(),
+                calendar.getTimeInMillis(),
                 "-" + editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
@@ -73,6 +84,48 @@ public class AddOrSubtract extends AppCompatActivity {
         editTextAmount.setText(null);
         editTextDetails.setText(null);
         goBack();
+    }
+
+
+    public void onClickTextViewDate(View view) {
+        final TimePickerDialog.OnTimeSetListener timeListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                formatAndSetTimeStamp(calendar);
+            }
+        };
+
+        DatePickerDialog.OnDateSetListener dateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(
+                        AddOrSubtract.this,
+                        timeListener,
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                );
+                timePickerDialog.show();
+            }
+        };
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                dateListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
     }
 
     private void goBack() {

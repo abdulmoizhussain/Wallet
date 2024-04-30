@@ -25,12 +25,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class ExportData {
+    private static String fileName;
+
     /**
      * @param context  This context should be called from an Activity
      * @param dbHelper DBHelper to grab database entries.
      */
     public static void exportData_Step1(Context context, DBHelper dbHelper) {
         String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + Utils.getTimeStamp(new Date()) + ".json.txt";
+
+        // source: https://stackoverflow.com/a/75134879/8075004
+        ExportData.fileName = fileName;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             toDownloadsDirectory_Step1(context, dbHelper, fileName);
@@ -45,7 +50,7 @@ public class ExportData {
     }
 
     public static void exportData_ToUserSelectedDirectory(Context context, Intent intent, DBHelper dbHelper) {
-        String fileName = intent.getStringExtra(Intent.EXTRA_TITLE);
+        // String fileName = intent.getStringExtra(Intent.EXTRA_TITLE);
         try {
             Uri uri = intent.getData();
             String scheme = uri.getScheme();
