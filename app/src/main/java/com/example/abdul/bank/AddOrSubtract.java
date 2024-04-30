@@ -13,10 +13,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.text.SimpleDateFormat;
+import com.example.abdul.bank.common.utils.DateUtil;
+
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class AddOrSubtract extends AppCompatActivity {
     private EditText editTextAmount, editTextDetails;
@@ -36,8 +36,7 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     private void formatAndSetTimeStamp(Calendar calendar) {
-        Date date = new Date(calendar.getTimeInMillis());
-        String timeStamp = String.format("%s-%s-%s-%s", getDate(date), getMonth(date), getYear(date), getTime(date));
+        String timeStamp = DateUtil.formatIn12HourFormat(calendar.getTimeInMillis());
         textViewDate.setText(timeStamp);
     }
 
@@ -131,21 +130,5 @@ public class AddOrSubtract extends AppCompatActivity {
     private void goBack() {
         finish();
         startActivity(new Intent(this, MainActivity.class));
-    }
-
-    private String getYear(Date date) {
-        return new SimpleDateFormat("yyyy", Locale.US).format(date);
-    }
-
-    private String getDate(Date date) {
-        return new SimpleDateFormat("dd", Locale.US).format(date);
-    }
-
-    private String getMonth(Date date) {
-        return new SimpleDateFormat("MMM", Locale.US).format(date);
-    }
-
-    private String getTime(Date date) {
-        return new SimpleDateFormat("hh:mm a", Locale.US).format(date);
     }
 }

@@ -8,8 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
-import com.example.abdul.bank.common.RequestCode;
-import com.example.abdul.bank.common.Utils;
+import com.example.abdul.bank.common.constants.ActivityRequestCode;
+import com.example.abdul.bank.common.utils.DateUtil;
 
 import org.json.JSONException;
 
@@ -32,7 +32,7 @@ public class ExportData {
      * @param dbHelper DBHelper to grab database entries.
      */
     public static void exportData_Step1(Context context, DBHelper dbHelper) {
-        String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + Utils.getTimeStamp(new Date()) + ".json.txt";
+        String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + DateUtil.getTimeStamp(new Date()) + ".json.txt";
 
         // source: https://stackoverflow.com/a/75134879/8075004
         ExportData.fileName = fileName;
@@ -46,7 +46,7 @@ public class ExportData {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
-        ((Activity) context).startActivityForResult(intent, RequestCode.CREATE_EXPORT_FILE);
+        ((Activity) context).startActivityForResult(intent, ActivityRequestCode.CREATE_EXPORT_FILE);
     }
 
     public static void exportData_ToUserSelectedDirectory(Context context, Intent intent, DBHelper dbHelper) {
