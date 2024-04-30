@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.abdul.bank.common.utils.CalendarUtil;
 import com.example.abdul.bank.common.utils.DateUtil;
 
 import java.util.Calendar;
@@ -50,10 +51,13 @@ public class AddOrSubtract extends AppCompatActivity {
 
         boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
-                calendar.getTimeInMillis(),
+                CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
                 editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
+
+        dbHelper.close();
+
         String msg = insertionResult ? editTextAmount.getText().toString() + " added to Wallet" : "Error! Cannot add";
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
@@ -72,10 +76,12 @@ public class AddOrSubtract extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(this);
         boolean insertionResult = dbHelper.insertOne(
                 textViewDate.getText().toString(),
-                calendar.getTimeInMillis(),
+                CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
                 "-" + editTextAmount.getText().toString(),
                 editTextDetails.getText().toString()
         );
+
+        dbHelper.close();
 
         String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Wallet" : "Error! Cannot subtract";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();

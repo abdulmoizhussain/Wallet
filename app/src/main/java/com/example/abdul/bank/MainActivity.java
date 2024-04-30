@@ -63,6 +63,18 @@ public class MainActivity extends AppCompatActivity {
     private ListView listViewWalletEntries;
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        dbHelper.close();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbHelper.close();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -365,14 +377,15 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+
     private void importDataStep1_OpenFilePicker() {
-        // source:
+        // code sources:
         // https://stackoverflow.com/a/36558378/8075004
         // https://stackoverflow.com/a/67639241/8075004
         // https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
-        // application/json
         // https://stackoverflow.com/a/61343993/8075004
         // https://developer.android.com/training/data-storage/shared/documents-files#java
+
         String action = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT;
 
         Intent intent = new Intent(action);
@@ -380,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
 
         // why not directly selecting JSON files?
         // reason: https://stackoverflow.com/a/34402101/8075004
-        intent.setType("text/plain");
+        intent.setType("text/plain"); // application/json
 
         // When need to pass multiple mime-types:
         // https://stackoverflow.com/a/33117677/8075004
@@ -397,14 +410,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void importDataStep2_ReadFromUri(Intent intent) {
         try {
-            Uri uri = intent.getData();
             ContentResolver contentResolver = getContentResolver();
+
+            Uri uri = intent.getData();
+            assert uri != null;
+
             String scheme = uri.getScheme();
+            assert scheme != null;
+
             long fileSizeInBytes = 0;
 
             switch (scheme) {
                 case "file":
                     String filePath = uri.getPath();
+                    filePath = filePath == null ? "" : filePath;
 
                     String extension = "";
                     int index = filePath.lastIndexOf('.');
@@ -421,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case "content":
                     Cursor cursor = contentResolver.query(uri, new String[]{OpenableColumns.SIZE}, null, null, null);
+                    assert cursor != null;
                     int columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
                     if (columnIndex != -1 && cursor.moveToFirst() /* cursor.getCount() */) {
                         fileSizeInBytes = cursor.getLong(columnIndex);
@@ -469,8 +489,10 @@ public class MainActivity extends AppCompatActivity {
 
             AlertMessage.show("Success!", "Backup has been restored successfully.", this, false);
 
-        } catch (Exception exception) {
-            AlertMessage.show("Error", exception.toString(), this, false);
+        } catch (NullPointerException ex) {
+            AlertMessage.show("Error", ex.toString(), this, false);
+        } catch (Exception ex) {
+            AlertMessage.show("Error", ex.toString(), this, false);
         }
     }
 

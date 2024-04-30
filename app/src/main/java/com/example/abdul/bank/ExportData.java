@@ -53,29 +53,37 @@ public class ExportData {
         // String fileName = intent.getStringExtra(Intent.EXTRA_TITLE);
         try {
             Uri uri = intent.getData();
+            assert uri != null;
+
             String scheme = uri.getScheme();
-            switch (scheme) {
-                case "content":
-                    ContentResolver contentResolver = context.getContentResolver();
-                    OutputStream outputStream = contentResolver.openOutputStream(uri);
-                    String dbRecordsSerialized = dbHelper.getAllSerialized();
+            assert scheme != null;
+            if (scheme.equals("content")) {
+                ContentResolver contentResolver = context.getContentResolver();
+                OutputStream outputStream = contentResolver.openOutputStream(uri);
+                assert outputStream != null;
+                String dbRecordsSerialized = dbHelper.getAllSerialized();
 
-                    // source: https://stackoverflow.com/q/4069028/8075004
-                    PrintWriter printWriter = new PrintWriter(outputStream);
-                    printWriter.write(dbRecordsSerialized);
-                    printWriter.close();
+                // source: https://stackoverflow.com/q/4069028/8075004
+                PrintWriter printWriter = new PrintWriter(outputStream);
+                printWriter.write(dbRecordsSerialized);
+                printWriter.close();
 
-                    AlertMessage.show("Backup has been saved as: ", fileName, context, false);
-                    break;
-                default:
-                    AlertMessage.show(
-                            "ERROR",
-                            String.format(Locale.US, "Invalid scheme: %s. Please contact support.", scheme),
-                            context,
-                            false);
-                    break;
+                AlertMessage.show("Backup has been saved as: ", fileName, context, false);
+            } else {
+                AlertMessage.show(
+                        "ERROR",
+                        String.format(Locale.US, "Invalid scheme: %s. Please contact support.", scheme),
+                        context,
+                        false);
             }
-        } catch (JSONException | FileNotFoundException ex) { /* Exception ex */
+        } catch (JSONException | FileNotFoundException ex) {
+            AlertMessage.show(
+                    "Failed to Backup !",
+                    ex.getMessage(),
+                    context,
+                    false
+            );
+        } catch (Exception ex) {
             AlertMessage.show(
                     "Failed to Backup !",
                     ex.getMessage(),
