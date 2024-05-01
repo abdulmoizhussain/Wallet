@@ -32,9 +32,8 @@ public class ExportData {
      * @param dbHelper DBHelper to grab database entries.
      */
     public static void exportData_Step1(Context context, DBHelper dbHelper) {
-        String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + DateUtil.getTimeStamp(new Date()) + ".json.txt";
+        String fileName = "wallet-v" + BuildConfig.VERSION_CODE + "-" + DateUtil.formatForFileNameTimeStamp(new Date()) + ".json.txt";
 
-        // source: https://stackoverflow.com/a/75134879/8075004
         ExportData.fileName = fileName;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -50,7 +49,9 @@ public class ExportData {
     }
 
     public static void exportData_ToUserSelectedDirectory(Context context, Intent intent, DBHelper dbHelper) {
+        // source: https://stackoverflow.com/a/75134879/8075004
         // String fileName = intent.getStringExtra(Intent.EXTRA_TITLE);
+
         try {
             Uri uri = intent.getData();
             assert uri != null;

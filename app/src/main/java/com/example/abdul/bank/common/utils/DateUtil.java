@@ -16,18 +16,23 @@ public class DateUtil {
      * @param date java.util.Date instance
      * @return returns the formatted time in string.
      */
-    public static String getTimeStamp(Date date) {
+    public static String formatForFileNameTimeStamp(Date date) {
         return TIMESTAMP_FORMAT.format(date);
     }
 
+    /**
+     * Formats date from the calendar instance in the format: dd-MMM-yyyy
+     *
+     * @param calendar The calendar instance.
+     * @return Returns the formatted date string.
+     */
     public static String formatAsDateMonthYear(Calendar calendar) {
         return DATE_MONTH_YEAR.format(new Date(calendar.getTimeInMillis()));
     }
 
-
-    public static String formatIn12HourFormat(long milliseconds) {
-        //Date date = new Date(calendar.getTimeInMillis());
-        Date date = new Date(milliseconds);
+    public static String formatIn12HourFormat(Calendar calendar) {
+        //Date date = new Date(milliseconds);
+        Date date = new Date(calendar.getTimeInMillis());
         return timeStamp_12Hour.format(date);
     }
 }

@@ -37,7 +37,7 @@ public class AddOrSubtract extends AppCompatActivity {
     }
 
     private void formatAndSetTimeStamp(Calendar calendar) {
-        String timeStamp = DateUtil.formatIn12HourFormat(calendar.getTimeInMillis());
+        String timeStamp = DateUtil.formatIn12HourFormat(calendar);
         textViewDate.setText(timeStamp);
     }
 
