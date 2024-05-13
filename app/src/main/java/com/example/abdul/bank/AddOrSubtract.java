@@ -13,13 +13,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.abdul.bank.common.constants.Constants;
 import com.example.abdul.bank.common.utils.CalendarUtil;
 import com.example.abdul.bank.common.utils.DateUtil;
+import com.example.abdul.bank.modelscore.WalletCore;
 
 import java.util.Calendar;
 import java.util.Date;
 
 public class AddOrSubtract extends AppCompatActivity {
+    private String walletIdToEdit;
     private EditText editTextAmount, editTextDetails;
     private TextView textViewDate;
     private Calendar calendar;
@@ -30,10 +33,29 @@ public class AddOrSubtract extends AppCompatActivity {
         setContentView(R.layout.activity_add_or_subtract);
 
         textViewDate = findViewById(R.id.textViewDate);
+        editTextAmount = findViewById(R.id.editTextAmount);
+        editTextDetails = findViewById(R.id.editTextDetails);
 
         calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
+
+        populateFieldsIfThisIsAnEditCall();
         formatAndSetTimeStamp(calendar);
+    }
+
+    private void populateFieldsIfThisIsAnEditCall() {
+        walletIdToEdit = getIntent().getStringExtra(Constants.WALLET_ID);
+        if (walletIdToEdit == null) {
+            calendar.setTime(new Date());
+            return;
+        }
+
+        DBHelper dbHelper = new DBHelper(this);
+        WalletCore walletCore = dbHelper.getOneById(walletIdToEdit);
+        dbHelper.close();
+
+        editTextAmount.setText(walletCore.amountString().replace("-", ""));
+        editTextDetails.setText(walletCore.details);
+        calendar.setTime(new Date(walletCore.dateLong));
     }
 
     private void formatAndSetTimeStamp(Calendar calendar) {
@@ -41,50 +63,46 @@ public class AddOrSubtract extends AppCompatActivity {
         textViewDate.setText(timeStamp);
     }
 
-    public void add(View v) {
-        editTextAmount = findViewById(R.id.editTextAmount);
-        if (editTextAmount.getText().toString().isEmpty()) {
-            return;
-        }
-        editTextDetails = findViewById(R.id.editTextDetails);
-        DBHelper dbHelper = new DBHelper(this);
-
-        boolean insertionResult = dbHelper.insertOne(
-                textViewDate.getText().toString(),
-                CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
-                editTextAmount.getText().toString(),
-                editTextDetails.getText().toString()
-        );
-
-        dbHelper.close();
-
-        String msg = insertionResult ? editTextAmount.getText().toString() + " added to Wallet" : "Error! Cannot add";
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-
-        editTextAmount.setText(null);
-        editTextDetails.setText(null);
-        goBack();
+    public void onClickAdd(View v) {
+        addOrSubtract(true);
     }
 
-    public void subtract(View v) {
-        editTextAmount = findViewById(R.id.editTextAmount);
-        if (editTextAmount.getText().toString().isEmpty()) {
+    public void onClickSubtract(View v) {
+        addOrSubtract(false);
+    }
+
+    private void addOrSubtract(boolean add) {
+        String amountStr = editTextAmount.getText().toString();
+
+        if (amountStr.isEmpty()) {
             return;
         }
 
-        editTextDetails = findViewById(R.id.editTextDetails);
+        String amountStrToInsert = (add ? "" : "-") + amountStr;
+        boolean dbResult;
+
         DBHelper dbHelper = new DBHelper(this);
-        boolean insertionResult = dbHelper.insertOne(
-                textViewDate.getText().toString(),
-                CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
-                "-" + editTextAmount.getText().toString(),
-                editTextDetails.getText().toString()
-        );
+        if (walletIdToEdit == null) {
+            dbResult = dbHelper.insertOne(
+                    textViewDate.getText().toString(),
+                    CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
+                    amountStrToInsert,
+                    editTextDetails.getText().toString()
+            );
+        } else {
+            dbResult = dbHelper.updateOne(
+                    walletIdToEdit,
+                    textViewDate.getText().toString(),
+                    CalendarUtil.trimSeconds(calendar).getTimeInMillis(),
+                    amountStrToInsert,
+                    editTextDetails.getText().toString()
+            );
+        }
 
         dbHelper.close();
 
-        String message = insertionResult ? editTextAmount.getText().toString() + " subtracted from Wallet" : "Error! Cannot subtract";
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        String msg = dbResult ? (add ? "+" : "-") + amountStr : "Error! Failed to add/subtract";
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
         editTextAmount.setText(null);
         editTextDetails.setText(null);
@@ -111,6 +129,8 @@ public class AddOrSubtract extends AppCompatActivity {
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                formatAndSetTimeStamp(calendar);
 
                 TimePickerDialog timePickerDialog = new TimePickerDialog(
                         AddOrSubtract.this,

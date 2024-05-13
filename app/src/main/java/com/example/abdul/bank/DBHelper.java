@@ -23,7 +23,7 @@ import java.util.Locale;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final String[] SELECTED_COLUMNS = new String[]{"_id", "Date", "Amount", "Details"};
+    public static final String[] SELECTED_COLUMNS = new String[]{"_id", "DateLong", "Amount", "Details"};
 
     public DBHelper(Context context) {
         super(context, "wallet.db", null, 2);
@@ -55,6 +55,18 @@ public class DBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
+    boolean updateOne(String id, String date, long dateLong, String amount, String details) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("Date", date);
+        contentValues.put("DateLong", dateLong);
+        contentValues.put("Amount", amount);
+        contentValues.put("Details", details);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        int affectedRows = db.update("Wallet", contentValues, "_id = ?", new String[]{id});
+        return affectedRows != -1;
+    }
+
     void insertMany(List<WalletCore> walletCoreList) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
@@ -78,13 +90,34 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
+    public WalletCore getOneById(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT _id,Date,DateLong,Amount,Details FROM Wallet where _id = " + id, null);
+
+        WalletCore walletCore;
+        if (cursor.moveToFirst()) {
+            walletCore = new WalletCore();
+            walletCore.id = cursor.getLong(0);
+            walletCore.dateString = cursor.getString(1);
+            walletCore.dateLong = cursor.getLong(2);
+            walletCore.amount = cursor.getLong(3);
+            walletCore.details = cursor.getString(4);
+        } else {
+            walletCore = null;
+        }
+        db.close();
+        cursor.close();
+        return walletCore;
+    }
+
+    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar
+            startDateMillis, Calendar endDateMillis) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
 
         String raw_query = String.format(Locale.US,
-                "SELECT _id,Date,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY DateLong DESC, _id DESC",
+                "SELECT _id,DateLong,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY DateLong DESC, _id DESC",
                 search_term,
                 startDateMillis.getTimeInMillis(),
                 endDateMillis.getTimeInMillis()

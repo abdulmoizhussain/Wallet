@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
 import com.example.abdul.bank.common.constants.ActivityRequestCode;
+import com.example.abdul.bank.common.constants.Constants;
 import com.example.abdul.bank.common.utils.DateUtil;
 import com.example.abdul.bank.modelscore.WalletCore;
 
@@ -277,11 +280,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, AddOrSubtract.class));
     }
 
+    private static final int columnIndexOfDateLongColumn = 1;
+    private static final int columnIndexOfAmountColumn = 2;
     private final SimpleCursorAdapter.ViewBinder viewBinderWalletEntries = new SimpleCursorAdapter.ViewBinder() {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            int columnIndexOfAmountColumn = 2;
-            if (columnIndex == columnIndexOfAmountColumn) {
+            if (columnIndex == columnIndexOfDateLongColumn) {
+                long dateLong = cursor.getLong(columnIndexOfDateLongColumn);
+                ((TextView) view).setText(DateUtil.formatIn12HourFormat(dateLong));
+                return true;
+            } else if (columnIndex == columnIndexOfAmountColumn) {
                 long amount = cursor.getLong(columnIndexOfAmountColumn);
                 ((TextView) view).setText(decimalFormat.format(amount));
                 return true;
@@ -306,15 +314,17 @@ public class MainActivity extends AppCompatActivity {
     private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String rowId = ((TextView) view.findViewById(R.id.id_field)).getText().toString();
             String date = ((TextView) view.findViewById(R.id.date_field)).getText().toString();
             String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
             String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
 
-            String msg = String.format(Locale.US,
-                    "Amount: %s\n\nDetails: %s",
-                    amount, description);
+//            String msg = String.format(Locale.US,
+//                    "Amount: %s\n\nDetails: %s",
+//                    amount, description);
+            //AlertMessage.showSelectable(date, msg, MainActivity.this, true);
 
-            AlertMessage.showSelectable(date, msg, MainActivity.this, true);
+            displayEditOrViewDialogue(rowId, date, amount, description);
         }
     };
 
@@ -374,6 +384,49 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+        alertDialog.show();
+    }
+
+    private void displayEditOrViewDialogue(final String id, String date, String amount, final String description) {
+        // sources:
+        // https://stackoverflow.com/a/18799229/8075004
+        // https://stackoverflow.com/a/9470361/8075004
+        // https://stackoverflow.com/a/45964439/8075004
+        // https://stackoverflow.com/a/16998245/8075004
+
+        String msg = String.format(Locale.US,
+                "Amount: %s\n\nDetails: %s",
+                amount, description);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+
+        EditText editText = new EditText(MainActivity.this);
+        editText.setLayoutParams(layoutParams);
+        editText.setKeyListener(null);
+        editText.setTextIsSelectable(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            editText.setBackground(null);
+        }
+        editText.setText(msg);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle(date);
+        alertDialog.setView(editText);
+        alertDialog.setCancelable(true);
+
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok", (Message) null);
+
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Edit", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Intent intent = new Intent(MainActivity.this, AddOrSubtract.class);
+                intent.putExtra(Constants.WALLET_ID, id);
+                startActivity(intent);
+            }
+        });
+
         alertDialog.show();
     }
 

@@ -91,7 +91,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
-            android:onClick="add"
+            android:onClick="onClickAdd"
             android:text="Add" />
 
         <Button
@@ -100,7 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:onClick="subtract"
+            android:onClick="onClickSubtract"
             android:text="Subtract" />
     </LinearLayout>
 
