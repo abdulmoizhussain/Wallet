@@ -110,8 +110,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return walletCore;
     }
 
-    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar
-            startDateMillis, Calendar endDateMillis) {
+    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";

@@ -35,7 +35,8 @@
                 android:hint="Type keyword to search for."
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
-                android:inputType="text" />
+                android:inputType="text"
+                android:maxLines="1" />
 
             <Button
                 android:id="@+id/buttonSearch"

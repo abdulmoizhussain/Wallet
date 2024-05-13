@@ -14,10 +14,12 @@ import android.os.Environment;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -126,6 +128,19 @@ public class MainActivity extends AppCompatActivity {
         populateListViewItems();
 
         // Attaching listeners:
+
+        editTextSearchTerm.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    searchForTheTermAndUpdateListView();
+                    shiftFocusFromEditTextAndHideSoftKeyboard();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         Button buttonClearSearchTerm = findViewById(R.id.buttonClearSearchTerm);
         buttonClearSearchTerm.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -138,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 editTextSearchTerm.getText().clear();
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
                 shiftFocusFromEditTextAndHideSoftKeyboard();
             }
         });
@@ -154,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
                 shiftFocusFromEditTextAndHideSoftKeyboard();
             }
         });
@@ -237,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
                 spManager.setStartDate(startDate.getTimeInMillis());
 
                 setTextStartDate();
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -262,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                 spManager.setEndDate(endDate.getTimeInMillis());
 
                 setTextEndDate();
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
             }
         };
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -348,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
         setTotalAmount();
     }
 
-    private void updateListViewItems() {
+    private void searchForTheTermAndUpdateListView() {
         cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(editTextSearchTerm, startDate, endDate));
         setTotalAmount();
     }
@@ -374,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dbHelper.deleteOneById(id);
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
 
                 dialog.dismiss();
             }
@@ -538,7 +553,7 @@ public class MainActivity extends AppCompatActivity {
 
             dbHelper.insertMany(walletCoreList);
 
-            updateListViewItems();
+            searchForTheTermAndUpdateListView();
 
             AlertMessage.show("Success!", "Backup has been restored successfully.", this, false);
 
@@ -569,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dbHelper.deleteAllEntriesFromWallet();
-                updateListViewItems();
+                searchForTheTermAndUpdateListView();
                 dialog.dismiss();
             }
         });
