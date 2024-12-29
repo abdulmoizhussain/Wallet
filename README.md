@@ -1,6 +1,6 @@
 # Wallet
 Track and log your daily expenses with Wallet, a secure and fully offline Android app.
-You can easily export your data and carry your Wallet history, if you need to switch phone.
+You can easily export your data and carry your Wallet history, when you need to switch phone.
 
 
 ## [Download Now (APK file)][1] (version: 1.1)
