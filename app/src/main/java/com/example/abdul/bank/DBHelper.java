@@ -40,6 +40,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+//        sqLiteDatabase.execSQL("CREATE TABLE Wallet_TEMP (_id integer primary key autoincrement, Date text, DateLong integer, Amount real, Details text);");
+//        sqLiteDatabase.execSQL("INSERT INTO Wallet_TEMP (_id, Date, DateLong, Amount, Details) SELECT _id, Date, DateLong, Amount, Details FROM Wallet;");
+//        sqLiteDatabase.execSQL("drop table if exists Wallet");
+//        sqLiteDatabase.execSQL("ALTER TABLE Wallet_TEMP RENAME TO Wallet;");
         sqLiteDatabase.execSQL("drop table if exists Wallet");
         onCreate(sqLiteDatabase);
     }
