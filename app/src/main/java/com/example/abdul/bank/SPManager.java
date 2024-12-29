@@ -29,4 +29,12 @@ public class SPManager {
     public long getEndDate() {
         return sharedPreferences.getLong("END_DATE", 0);
     }
+
+    public void setSearchType(String searchTypeConstant) {
+        sharedPreferences.edit().putString("SEARCH_TYPE_CONSTANT", searchTypeConstant).apply();
+    }
+
+    public String getSearchType() {
+        return sharedPreferences.getString("SEARCH_TYPE_CONSTANT", null);
+    }
 }

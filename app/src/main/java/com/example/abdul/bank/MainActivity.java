@@ -40,6 +40,7 @@ import com.example.abdul.bank.common.constants.ActivityRequestCode;
 import com.example.abdul.bank.common.constants.Constants;
 import com.example.abdul.bank.common.utils.DateUtil;
 import com.example.abdul.bank.modelscore.WalletCore;
+import com.example.abdul.bank.views.Views;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -77,6 +78,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dbHelper.close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // source: https://stackoverflow.com/a/31596288/8075004
+        // source: https://stackoverflow.com/a/3142471/8075004
+        // super.onBackPressed();
+        // Not calling **super**, disables back button in current screen.
+        Toast.makeText(this, "Press Home to exit.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        searchForTheTermAndUpdateListView();
+        super.onResume();
     }
 
     @Override
@@ -128,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
         populateListViewItems();
 
         // Attaching listeners:
-
         editTextSearchTerm.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -159,18 +174,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button buttonSearch = findViewById(R.id.buttonSearch);
-        buttonSearch.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Toast.makeText(MainActivity.this, "Tap to find entries with the typed search term.", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchForTheTermAndUpdateListView();
                 shiftFocusFromEditTextAndHideSoftKeyboard();
+            }
+        });
+        buttonSearch.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Views.showSearchOptionsPopUp(MainActivity.this);
+                return true;
             }
         });
     }
@@ -211,13 +226,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -334,11 +342,6 @@ public class MainActivity extends AppCompatActivity {
             String amount = ((TextView) view.findViewById(R.id.amount_field)).getText().toString();
             String description = ((TextView) view.findViewById(R.id.details_field)).getText().toString();
 
-//            String msg = String.format(Locale.US,
-//                    "Amount: %s\n\nDetails: %s",
-//                    amount, description);
-            //AlertMessage.showSelectable(date, msg, MainActivity.this, true);
-
             displayEditOrViewDialogue(rowId, date, amount, description);
         }
     };
@@ -347,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
         cursorAdapterWalletEntries = new SimpleCursorAdapter(
                 this,
                 R.layout.list_view_single_wallet_entry_layout,
-                dbHelper.getAllInDescOrder(editTextSearchTerm, startDate, endDate),
+                dbHelper.searchInDescOrder(editTextSearchTerm, spManager.getSearchType(), startDate, endDate),
                 DBHelper.SELECTED_COLUMNS,
                 TO_VIEW_IDs,
                 0
@@ -364,12 +367,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchForTheTermAndUpdateListView() {
-        cursorAdapterWalletEntries.changeCursor(dbHelper.getAllInDescOrder(editTextSearchTerm, startDate, endDate));
+        cursorAdapterWalletEntries.changeCursor(dbHelper.searchInDescOrder(editTextSearchTerm, spManager.getSearchType(), startDate, endDate));
         setTotalAmount();
     }
 
     private void setTotalAmount() {
-        long totalAmount = dbHelper.getTotalAmount(editTextSearchTerm, startDate, endDate);
+        long totalAmount = dbHelper.getTotalAmount(editTextSearchTerm, spManager.getSearchType(), startDate, endDate);
 
         String total = String.format("%s %s", getResources().getString(R.string.total), decimalFormat.format(totalAmount));
 
@@ -444,7 +447,6 @@ public class MainActivity extends AppCompatActivity {
 
         alertDialog.show();
     }
-
 
     private void importDataStep1_OpenFilePicker() {
         // code sources:

@@ -5,14 +5,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.EditText;
 
+import com.example.abdul.bank.common.constants.Constants;
+import com.example.abdul.bank.common.utils.StringHelper;
 import com.example.abdul.bank.modelscore.WalletCore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -110,18 +114,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return walletCore;
     }
 
-    public Cursor getAllInDescOrder(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
+    public Cursor searchInDescOrder(EditText editTextSearchTerm, String searchType, Calendar startDateMillis, Calendar endDateMillis) {
+        String raw_query = generateFilterQuery(editTextSearchTerm, searchType, startDateMillis, endDateMillis, false);
+
         SQLiteDatabase db = this.getReadableDatabase();
-
-        String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
-
-        String raw_query = String.format(Locale.US,
-                "SELECT _id,DateLong,Amount,Details FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d ORDER BY DateLong DESC, _id DESC",
-                search_term,
-                startDateMillis.getTimeInMillis(),
-                endDateMillis.getTimeInMillis()
-        );
-
         Cursor cursor = db.rawQuery(raw_query, null);
         cursor.moveToFirst();
 
@@ -129,15 +125,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public long getTotalAmount(EditText editTextSearchTerm, Calendar startDateMillis, Calendar endDateMillis) {
-        String search_term = "'%" + editTextSearchTerm.getText().toString().trim() + "%'";
-
-        String raw_query = String.format(Locale.US,
-                "SELECT SUM(Amount) AS Total FROM Wallet WHERE Details LIKE %s AND DateLong >= %d AND DateLong <= %d",
-                search_term,
-                startDateMillis.getTimeInMillis(),
-                endDateMillis.getTimeInMillis()
-        );
+    public long getTotalAmount(EditText editTextSearchTerm, String searchType, Calendar startDateMillis, Calendar endDateMillis) {
+        String raw_query = generateFilterQuery(editTextSearchTerm, searchType, startDateMillis, endDateMillis, true);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(raw_query, null);
@@ -196,5 +185,70 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM Wallet");
 
         db.close();
+    }
+
+    private static String generateFilterQuery(EditText editTextSearchTerm, String searchType, Calendar startDate, Calendar endDate, boolean isSumQuery) {
+        if (searchType == null) {
+            searchType = Constants.SearchTypes.ExactMatch;
+        }
+
+        String searchText = editTextSearchTerm.getText().toString().trim();
+        String whereClause;
+        switch (searchType) {
+            case Constants.SearchTypes.KeywordsAny: {
+                List<String> matches = new ArrayList<>();
+                for (String item : searchText.split(" ")) {
+                    matches.add("Details like '%" + item + "%'");
+                }
+                whereClause = StringHelper.join(" OR ", matches);
+                break;
+            }
+            case Constants.SearchTypes.KeywordsIncludeAll: {
+                List<String> matches = new ArrayList<>();
+                for (String item : searchText.split(" ")) {
+                    matches.add("Details like '%" + item + "%'");
+                }
+                whereClause = StringHelper.join(" AND ", matches);
+                break;
+            }
+            case Constants.SearchTypes.SearchAmountAndKeywordsAny: {
+                List<String> matches = new ArrayList<>();
+                for (String item : searchText.split(" ")) {
+                    matches.add("Amount like '%" + item + "%'");
+                    matches.add("Details like '%" + item + "%'");
+                }
+                whereClause = StringHelper.join(" OR ", matches);
+                break;
+            }
+            case Constants.SearchTypes.MatchAmount: {
+                whereClause = "Amount LIKE '%" + searchText + "%'";
+                break;
+            }
+            case Constants.SearchTypes.ExactMatch:
+            default: { // When any unhandled value comes
+                whereClause = "Details LIKE '%" + searchText + "%'";
+            }
+            break;
+        }
+
+        String raw_query;
+        if (isSumQuery) {
+            raw_query = String.format(Locale.US,
+                    "SELECT SUM(Amount) AS Total FROM Wallet WHERE (%s) AND DateLong >= %d AND DateLong <= %d",
+                    whereClause,
+                    startDate.getTimeInMillis(),
+                    endDate.getTimeInMillis()
+            );
+        } else {
+            raw_query = String.format(Locale.US,
+                    "SELECT _id,DateLong,Amount,Details FROM Wallet WHERE (%s) AND DateLong >= %d AND DateLong <= %d ORDER BY DateLong DESC, _id DESC",
+                    whereClause,
+                    startDate.getTimeInMillis(),
+                    endDate.getTimeInMillis()
+            );
+        }
+
+        Log.i("raw_query", raw_query);
+        return raw_query;
     }
 }
