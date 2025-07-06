@@ -38,11 +38,12 @@ public class AddOrSubtract extends AppCompatActivity {
         calendar = Calendar.getInstance();
 
         populateFieldsIfThisIsAnEditCall();
-        formatAndSetTimeStamp(calendar);
+        formatAndSetDateTime();
     }
 
     private void populateFieldsIfThisIsAnEditCall() {
         walletIdToEdit = getIntent().getStringExtra(Constants.WALLET_ID);
+
         if (walletIdToEdit == null) {
             calendar.setTime(new Date());
             return;
@@ -52,12 +53,19 @@ public class AddOrSubtract extends AppCompatActivity {
         WalletCore walletCore = dbHelper.getOneById(walletIdToEdit);
         dbHelper.close();
 
+        boolean isCloneEntry = getIntent().getBooleanExtra(Constants.WALLET_IS_CLONE, false);
+        if (isCloneEntry) {
+            // when its a clone entry, make the wallet ID null,
+            // so a new entry is sent to DB instead of modifying an old one.
+            walletIdToEdit = null;
+        }
+
         editTextAmount.setText(walletCore.amountString().replace("-", ""));
         editTextDetails.setText(walletCore.details);
         calendar.setTime(new Date(walletCore.dateLong));
     }
 
-    private void formatAndSetTimeStamp(Calendar calendar) {
+    private void formatAndSetDateTime() {
         String timeStamp = DateUtil.formatIn12HourFormat(calendar);
         textViewDate.setText(timeStamp);
     }
@@ -118,7 +126,7 @@ public class AddOrSubtract extends AppCompatActivity {
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
 
-                formatAndSetTimeStamp(calendar);
+                formatAndSetDateTime();
             }
         };
 
@@ -129,7 +137,7 @@ public class AddOrSubtract extends AppCompatActivity {
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                formatAndSetTimeStamp(calendar);
+                formatAndSetDateTime();
 
                 TimePickerDialog timePickerDialog = new TimePickerDialog(
                         AddOrSubtract.this,
@@ -154,5 +162,10 @@ public class AddOrSubtract extends AppCompatActivity {
 
     private void goBack() {
         finish();
+    }
+
+    public void onClickRefreshDate(View view) {
+        calendar = Calendar.getInstance();
+        formatAndSetDateTime();
     }
 }

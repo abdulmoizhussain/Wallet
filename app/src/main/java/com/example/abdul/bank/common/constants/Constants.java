@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class Constants {
     public static final String WALLET_ID = "WALLET_ID";
+    public static final String WALLET_IS_CLONE = "WALLET_IS_CLONE";
 
     public static class SearchTypes {
         public static final String ExactMatch = "searchType_ExactMatch";

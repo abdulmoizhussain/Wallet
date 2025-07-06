@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.view.KeyEvent;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /// TODO:
+        /// TODO -
         // Edit feature.
         // Floating button for an entry.
         // Google drive backup if possible.
@@ -405,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void displayEditOrViewDialogue(final String id, String date, String amount, final String description) {
+    private void displayEditOrViewDialogue(final String id, final String date, final String amount, final String description) {
         // sources:
         // https://stackoverflow.com/a/18799229/8075004
         // https://stackoverflow.com/a/9470361/8075004
@@ -434,7 +433,16 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setView(editText);
         alertDialog.setCancelable(true);
 
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok", (Message) null);
+//        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok", (Message) null);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Clone", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Intent intent = new Intent(MainActivity.this, AddOrSubtract.class);
+                intent.putExtra(Constants.WALLET_ID, id);
+                intent.putExtra(Constants.WALLET_IS_CLONE, true);
+                startActivity(intent);
+            }
+        });
 
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Edit", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
